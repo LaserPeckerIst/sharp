@@ -72,7 +72,7 @@ public class SvgDemoActivity extends AppCompatActivity {
 
         Sharp.setLogLevel(Sharp.LOG_LEVEL_INFO);
 
-        mSvg = Sharp.loadResource(getResources(), R.raw.cartman);
+        mSvg = Sharp.loadResource(getResources(), R.raw.cartman2);
         // If you want to load typefaces from assets:
         //          .withAssets(getAssets());
 

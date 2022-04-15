@@ -23,6 +23,7 @@
 
 package com.pixplicity.sharp;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
@@ -44,15 +45,14 @@ import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Looper;
-
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import android.text.TextPaint;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -68,6 +68,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -101,7 +102,8 @@ public abstract class Sharp {
     static int LOG_LEVEL = LOG_LEVEL_ERROR;
 
     @IntDef({LOG_LEVEL_ERROR, LOG_LEVEL_WARN, LOG_LEVEL_INFO})
-    public @interface LogLevel {}
+    public @interface LogLevel {
+    }
 
     private static String sAssumedUnit;
     private static HashMap<String, String> sTextDynamic = null;
@@ -111,6 +113,9 @@ public abstract class Sharp {
     private OnSvgElementListener mOnElementListener;
     private AssetManager mAssetManager;
 
+    /**
+     * 单位
+     */
     enum Unit {
         PERCENT("%"),
         PT("pt"),
@@ -157,6 +162,7 @@ public abstract class Sharp {
     @SuppressWarnings("unused")
     public static Sharp loadInputStream(final InputStream svgData) {
         return new Sharp() {
+            @Override
             protected InputStream getInputStream() {
                 return svgData;
             }
@@ -176,6 +182,7 @@ public abstract class Sharp {
     @SuppressWarnings("unused")
     public static Sharp loadString(final String svgData) {
         return new Sharp() {
+            @Override
             protected InputStream getInputStream() {
                 return new ByteArrayInputStream(svgData.getBytes());
             }
@@ -194,9 +201,9 @@ public abstract class Sharp {
      * @return this Sharp object
      */
     @SuppressWarnings("unused")
-    public static Sharp loadResource(final Resources resources,
-                                     final int resId) {
+    public static Sharp loadResource(final Resources resources, final int resId) {
         return new Sharp() {
+            @Override
             protected InputStream getInputStream() {
                 InputStream inputStream = resources.openRawResource(resId);
                 if (Looper.myLooper() != Looper.getMainLooper()) {
@@ -220,9 +227,9 @@ public abstract class Sharp {
      * @return this Sharp object
      */
     @SuppressWarnings("unused")
-    public static Sharp loadAsset(final AssetManager assetMngr,
-                                  final String svgPath) {
+    public static Sharp loadAsset(final AssetManager assetMngr, final String svgPath) {
         return new Sharp() {
+            @Override
             protected InputStream getInputStream() throws IOException {
                 InputStream inputStream = assetMngr.open(svgPath);
                 if (Looper.myLooper() != Looper.getMainLooper()) {
@@ -250,6 +257,7 @@ public abstract class Sharp {
         return new Sharp() {
             private FileInputStream mFis;
 
+            @Override
             protected InputStream getInputStream() throws FileNotFoundException {
                 mFis = new FileInputStream(imageFile);
                 return mFis;
@@ -290,6 +298,15 @@ public abstract class Sharp {
         }
         inputStream = new ByteArrayInputStream(svgData.toString().getBytes());
         return inputStream;
+    }
+
+    public static void checkAssumedUnits(String unit) {
+        if (sAssumedUnit == null) {
+            sAssumedUnit = unit;
+        }
+        if (!sAssumedUnit.equals(unit)) {
+            throw new IllegalStateException("Mixing units; SVG contains both " + sAssumedUnit + " and " + unit);
+        }
     }
 
     private Sharp() {
@@ -399,11 +416,16 @@ public abstract class Sharp {
         });
     }
 
+    /**
+     * read入口
+     * [SharpPicture]
+     */
     private SharpPicture getSharpPicture(InputStream inputStream) throws SvgParseException {
         if (inputStream == null) {
             throw new NullPointerException("An InputStream must be provided");
         }
         try {
+            //入口
             mSvgHandler.read(inputStream);
         } finally {
             try {
@@ -441,8 +463,9 @@ public abstract class Sharp {
         }
     }
 
-    public void getSharpPicture(final PictureCallback callback) {
-        new AsyncTask<Void, Void, SharpPicture>() {
+    @SuppressLint("StaticFieldLeak")
+    public AsyncTask<Void, Void, SharpPicture> getSharpPicture(final PictureCallback callback) {
+        return new AsyncTask<Void, Void, SharpPicture>() {
             @Override
             protected SharpPicture doInBackground(Void... params) {
                 InputStream inputStream = null;
@@ -470,6 +493,9 @@ public abstract class Sharp {
         }.execute();
     }
 
+    /**
+     * 从字符串中解析出所哟的浮点数字
+     */
     private static ArrayList<Float> parseNumbers(String s) {
         //Log.d(TAG, "Parsing numbers from: '" + s + "'");
         int n = s.length();
@@ -662,6 +688,7 @@ public abstract class Sharp {
     }
 
     /**
+     * 路径解析
      * This is where the hard-to-parse paths are handled.
      * Uppercase rules are absolute positions, lowercase are relative.
      * Types of path rules:
@@ -679,6 +706,8 @@ public abstract class Sharp {
      * </ol>
      * <p/>
      * Numbers are separate by whitespace, comma or nothing at all (!) if they are self-delimiting, (ie. begin with a - sign)
+     * <p>
+     * 例如: M14,85l3,9h72c0,0,5-9,4-10c-2-2-79,0-79,1
      *
      * @param s the path text from the XML
      */
@@ -697,6 +726,8 @@ public abstract class Sharp {
         char prevCmd = 0;
         while (ph.pos < n) {
             char cmd = s.charAt(ph.pos);
+
+            //获取命令
             switch (cmd) {
                 case '.':
                 case '-':
@@ -724,7 +755,8 @@ public abstract class Sharp {
                 }
             }
 
-            boolean wasCurve = false;
+            //解析命令
+            boolean wasCurve = false; //是否是曲线
             switch (cmd) {
                 case 'Z':
                 case 'z': {
@@ -929,8 +961,7 @@ public abstract class Sharp {
     private static final Matrix arcMatrix = new Matrix();
     private static final Matrix arcMatrix2 = new Matrix();
 
-    private static void drawArc(Path p, float lastX, float lastY, float x, float y,
-                                float rx, float ry, float theta, int largeArc, int sweepArc) {
+    private static void drawArc(Path p, float lastX, float lastY, float x, float y, float rx, float ry, float theta, int largeArc, int sweepArc) {
         //Log.d("drawArc", "from (" + lastX + "," + lastY + ") to (" + x + ","+ y + ") r=(" + rx + "," + ry + ") theta=" + theta + " flags="+ largeArc + "," + sweepArc);
 
         // http://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
@@ -1006,8 +1037,7 @@ public abstract class Sharp {
         }
     }
 
-    private static ArrayList<Float> getNumberParseAttr(String name,
-                                                       Attributes attributes) {
+    private static ArrayList<Float> getNumberParseAttr(String name, Attributes attributes) {
         int n = attributes.getLength();
         for (int i = 0; i < n; i++) {
             if (attributes.getLocalName(i).equals(name)) {
@@ -1062,15 +1092,15 @@ public abstract class Sharp {
         }
     }
 
-    private void onSvgStart(@NonNull Canvas canvas,
-                            @Nullable RectF bounds) {
+    //<editor-fold desc="回调">
+
+    private void onSvgStart(@NonNull Canvas canvas, @Nullable RectF bounds) {
         if (mOnElementListener != null) {
             mOnElementListener.onSvgStart(canvas, bounds);
         }
     }
 
-    private void onSvgEnd(@NonNull Canvas canvas,
-                          @Nullable RectF bounds) {
+    private void onSvgEnd(@NonNull Canvas canvas, @Nullable RectF bounds) {
         if (mOnElementListener != null) {
             mOnElementListener.onSvgEnd(canvas, bounds);
         }
@@ -1083,8 +1113,7 @@ public abstract class Sharp {
                                @Nullable RectF canvasBounds,
                                @Nullable Paint paint) {
         if (mOnElementListener != null) {
-            return mOnElementListener.onSvgElement(
-                    id, element, elementBounds, canvas, canvasBounds, paint);
+            return mOnElementListener.onSvgElement(id, element, elementBounds, canvas, canvasBounds, paint);
         }
         return element;
     }
@@ -1097,6 +1126,8 @@ public abstract class Sharp {
             mOnElementListener.onSvgElementDrawn(id, element, canvas, paint);
         }
     }
+
+    //</editor-fold desc="回调">
 
     private static class Gradient {
 
@@ -1210,7 +1241,11 @@ public abstract class Sharp {
                 } catch (ArrayIndexOutOfBoundsException e) {
                     return null;
                 }
+            } else if (v.toLowerCase(Locale.US).startsWith("currentcolor")) {
+                //当前的颜色
+                return getColor("color");
             } else {
+                //颜色映射
                 return SvgColors.mapColor(v);
             }
         }
@@ -1245,7 +1280,12 @@ public abstract class Sharp {
         }
     }
 
+    /**
+     * SVG处理类
+     */
     public static class SvgHandler extends DefaultHandler {
+
+        //<editor-fold desc="内部属性">
 
         private final Sharp mSharp;
         private Picture mPicture;
@@ -1279,9 +1319,13 @@ public abstract class Sharp {
         private boolean mReadingDefs = false;
         private Stack<String> mReadIgnoreStack = new Stack<>();
 
+        //</editor-fold desc="内部属性">
+
         private SvgHandler(Sharp sharp) {
             mSharp = sharp;
         }
+
+        //<editor-fold desc="触发解析回调">
 
         private void onSvgStart() {
             mSharp.onSvgStart(mCanvas, mBounds);
@@ -1304,11 +1348,19 @@ public abstract class Sharp {
             mSharp.onSvgElementDrawn(id, element, mCanvas, paint);
         }
 
+        //</editor-fold desc="触发解析回调">
+
+        //<editor-fold desc="解析入口">
+
+        /**
+         * 读取解析的入口
+         */
         public void read(InputStream in) {
             mPicture = new Picture();
             try {
                 long start = System.currentTimeMillis();
                 if (in.markSupported()) {
+                    //GZIP支持
                     in.mark(4);
                     byte[] magic = new byte[2];
                     int r = in.read(magic, 0, 2);
@@ -1321,11 +1373,13 @@ public abstract class Sharp {
                         in = new GZIPInputStream(in);
                     }
                 }
+                //XML文档解析
                 SAXParserFactory spf = SAXParserFactory.newInstance();
                 SAXParser sp = spf.newSAXParser();
                 XMLReader xr = sp.getXMLReader();
                 xr.setContentHandler(this);
                 xr.parse(new InputSource(in));
+                //解析结束
                 if (sTextDynamic != null) {
                     sTextDynamic.clear();
                     sTextDynamic = null;
@@ -1339,26 +1393,9 @@ public abstract class Sharp {
             }
         }
 
-        @Override
-        public void startDocument() throws SAXException {
-            // Set up prior to parsing a doc
-            mStrokePaint = new Paint();
-            mStrokePaint.setAntiAlias(true);
-            mStrokePaint.setStyle(Paint.Style.STROKE);
+        //</editor-fold desc="解析入口">
 
-            mFillPaint = new Paint();
-            mFillPaint.setAntiAlias(true);
-            mFillPaint.setStyle(Paint.Style.FILL);
-
-            mMatrixStack.push(new Matrix());
-        }
-
-        @Override
-        public void endDocument() throws SAXException {
-            // Clean up after parsing a doc
-            mDefs.clear();
-            mMatrixStack.clear();
-        }
+        //<editor-fold desc="xml属性解析">
 
         private final Matrix gradMatrix = new Matrix();
 
@@ -1706,6 +1743,161 @@ public abstract class Sharp {
             }
         }
 
+        private void hide() {
+            if (!hidden) {
+                hidden = true;
+                hiddenLevel = 1;
+            } else {
+                hiddenLevel++;
+            }
+        }
+
+        private void unhide() {
+            if (hidden) {
+                hiddenLevel--;
+                if (hiddenLevel == 0) {
+                    hidden = false;
+                }
+            }
+        }
+
+        private Align getTextAlign(Attributes atts) {
+            String align = getStringAttr("text-anchor", atts);
+            if (align == null) {
+                return null;
+            }
+            if ("middle".equals(align)) {
+                return Align.CENTER;
+            } else if ("end".equals(align)) {
+                return Align.RIGHT;
+            } else {
+                return Align.LEFT;
+            }
+        }
+
+        private Typeface setTypeface(Attributes atts, Properties props, AssetManager assetManager, Typeface defaultTypeface) {
+            // Prefer a dedicated attribute
+            String family = getStringAttr("font-family", atts);
+            if (family == null) {
+                // Fall back to reading from "style" attribute
+                family = props.getString("font-family");
+            }
+            // Prefer a dedicated attribute
+            String style = getStringAttr("font-style", atts);
+            if (style == null) {
+                // Fall back to reading from "style" attribute
+                style = props.getString("font-style");
+            }
+            // Prefer a dedicated attribute
+            String weight = getStringAttr("font-weight", atts);
+            if (weight == null) {
+                // Fall back to reading from "style" attribute
+                weight = props.getString("font-weight");
+            }
+
+            // Set the style parameters
+            int styleParam = Typeface.NORMAL;
+            if ("italic".equals(style)) {
+                styleParam |= Typeface.ITALIC;
+            }
+            if ("bold".equals(weight)) {
+                styleParam |= Typeface.BOLD;
+            }
+
+            Typeface plain;
+            if (family != null) {
+                // Attempt to load the typeface
+                if (assetManager != null) {
+                    Pattern pattern = Pattern.compile("'(.+?)'(?:,'(.+?)')*");
+                    Matcher matcher = pattern.matcher(family);
+                    if (matcher.matches()) {
+                        for (int i = 1; i < matcher.groupCount() + 1; i++) {
+                            if (matcher.group(i) != null) {
+                                family = matcher.group(i);
+                            }
+                        }
+                    }
+                    // Compose a filename
+                    String typefaceFile = "fonts/" + family + ".ttf";
+                    try {
+                        plain = Typeface.createFromAsset(assetManager, typefaceFile);
+                        if (LOG_LEVEL >= LOG_LEVEL_INFO) {
+                            Log.d(TAG, "Loaded typeface from assets: " + typefaceFile);
+                        }
+                    } catch (RuntimeException e) {
+                        boolean found = true;
+                        try {
+                            String[] fonts = assetManager.list("fonts/");
+                            found = false;
+                            for (String font : fonts) {
+                                if (typefaceFile.equals(font)) {
+                                    found = true;
+                                }
+                            }
+                        } catch (IOException e1) {
+                            if (LOG_LEVEL >= LOG_LEVEL_ERROR) {
+                                Log.e(TAG, "Failed listing assets directory for /fonts", e);
+                            }
+                        }
+                        if (!found) {
+                            if (LOG_LEVEL >= LOG_LEVEL_ERROR) {
+                                Log.e(TAG, "Typeface is missing from assets: " + typefaceFile);
+                            }
+                        } else {
+                            if (LOG_LEVEL >= LOG_LEVEL_ERROR) {
+                                Log.e(TAG, "Failed to create typeface from assets: " + typefaceFile, e);
+                            }
+                        }
+                        plain = null;
+                    }
+                    if (plain != null) {
+                        // Adapt the type face with the style
+                        return Typeface.create(plain, styleParam);
+                    }
+                } else {
+                    if (LOG_LEVEL >= LOG_LEVEL_ERROR) {
+                        Log.e(TAG, "Typefaces can only be loaded if assets are provided; " +
+                                "invoke " + Sharp.class.getSimpleName() + " with .withAssets()");
+                    }
+                }
+            }
+            if (defaultTypeface == null) {
+                return Typeface.create(family, styleParam);
+            } else {
+                return Typeface.create(defaultTypeface, styleParam);
+            }
+        }
+
+        //</editor-fold desc="xml属性解析">
+
+        //<editor-fold desc="xml文档处理">
+
+        @Override
+        public void startDocument() throws SAXException {
+            // Set up prior to parsing a doc
+            mStrokePaint = new Paint();
+            mStrokePaint.setAntiAlias(true);
+            mStrokePaint.setStyle(Paint.Style.STROKE);
+
+            mFillPaint = new Paint();
+            mFillPaint.setAntiAlias(true);
+            mFillPaint.setStyle(Paint.Style.FILL);
+
+            mMatrixStack.push(new Matrix());
+        }
+
+        @Override
+        public void endDocument() throws SAXException {
+            // Clean up after parsing a doc
+            mDefs.clear();
+            mMatrixStack.clear();
+        }
+
+        /**
+         * 接收元素开始的通知
+         * [localName] 不带前缀的元素名字
+         * [qName] 带前缀的元素名字
+         */
         @Override
         public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
             if (!mReadIgnoreStack.empty()) {
@@ -2032,11 +2224,12 @@ public abstract class Sharp {
             } else if (!hidden) {
                 switch (localName) {
                     case "metadata":
-                        // Ignore, including children
+                        // Ignore, including children //需要忽略的元素以及子元素
                         mReadIgnoreStack.push(localName);
                         break;
                     default:
                         if (LOG_LEVEL >= LOG_LEVEL_WARN) {
+                            //无法识别的svg指令
                             Log.w(TAG, "Unrecognized SVG command: " + localName);
                         }
                         break;
@@ -2044,25 +2237,11 @@ public abstract class Sharp {
             }
         }
 
-        private void hide() {
-            if (!hidden) {
-                hidden = true;
-                hiddenLevel = 1;
-            } else {
-                hiddenLevel++;
-            }
-        }
-
+        /**
+         * 接收元素结束的通知
+         */
         @Override
-        public void characters(char[] ch, int start, int length) {
-            if (!mTextStack.isEmpty()) {
-                mTextStack.peek().setText(ch, start, length);
-            }
-        }
-
-        @Override
-        public void endElement(String namespaceURI, String localName, String qName)
-                throws SAXException {
+        public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
             if (!mReadIgnoreStack.empty() && localName.equals(mReadIgnoreStack.peek())) {
                 // Ignore
                 mReadIgnoreStack.pop();
@@ -2122,26 +2301,25 @@ public abstract class Sharp {
             }
         }
 
-        private void unhide() {
-            if (hidden) {
-                hiddenLevel--;
-                if (hiddenLevel == 0) {
-                    hidden = false;
-                }
+        /**
+         * 接收字符的通知, 标签之间的字符串内容. 可以通过此方法修改字符编码, 也可以通过此方法, 剔除字符串两边的无效字符
+         */
+        @Override
+        public void characters(char[] ch, int start, int length) {
+            if (!mTextStack.isEmpty()) {
+                mTextStack.peek().setText(ch, start, length);
             }
         }
 
+        //</editor-fold desc="xml文档处理">
 
         public class SvgGroup {
-
             private final String id;
 
             public SvgGroup(String id) {
                 this.id = id;
             }
-
         }
-
 
         /**
          * Holds text properties as these are only applied with the end tag is encountered.
@@ -2327,134 +2505,13 @@ public abstract class Sharp {
                 }
             }
         }
-
-        private Align getTextAlign(Attributes atts) {
-            String align = getStringAttr("text-anchor", atts);
-            if (align == null) {
-                return null;
-            }
-            if ("middle".equals(align)) {
-                return Align.CENTER;
-            } else if ("end".equals(align)) {
-                return Align.RIGHT;
-            } else {
-                return Align.LEFT;
-            }
-        }
-
-        private Typeface setTypeface(Attributes atts, Properties props, AssetManager assetManager, Typeface defaultTypeface) {
-            // Prefer a dedicated attribute
-            String family = getStringAttr("font-family", atts);
-            if (family == null) {
-                // Fall back to reading from "style" attribute
-                family = props.getString("font-family");
-            }
-            // Prefer a dedicated attribute
-            String style = getStringAttr("font-style", atts);
-            if (style == null) {
-                // Fall back to reading from "style" attribute
-                style = props.getString("font-style");
-            }
-            // Prefer a dedicated attribute
-            String weight = getStringAttr("font-weight", atts);
-            if (weight == null) {
-                // Fall back to reading from "style" attribute
-                weight = props.getString("font-weight");
-            }
-
-            // Set the style parameters
-            int styleParam = Typeface.NORMAL;
-            if ("italic".equals(style)) {
-                styleParam |= Typeface.ITALIC;
-            }
-            if ("bold".equals(weight)) {
-                styleParam |= Typeface.BOLD;
-            }
-
-            Typeface plain;
-            if (family != null) {
-                // Attempt to load the typeface
-                if (assetManager != null) {
-                    Pattern pattern = Pattern.compile("'(.+?)'(?:,'(.+?)')*");
-                    Matcher matcher = pattern.matcher(family);
-                    if (matcher.matches()) {
-                        for (int i = 1; i < matcher.groupCount() + 1; i++) {
-                            if (matcher.group(i) != null) {
-                                family = matcher.group(i);
-                            }
-                        }
-                    }
-                    // Compose a filename
-                    String typefaceFile = "fonts/" + family + ".ttf";
-                    try {
-                        plain = Typeface.createFromAsset(assetManager, typefaceFile);
-                        if (LOG_LEVEL >= LOG_LEVEL_INFO) {
-                            Log.d(TAG, "Loaded typeface from assets: " + typefaceFile);
-                        }
-                    } catch (RuntimeException e) {
-                        boolean found = true;
-                        try {
-                            String[] fonts = assetManager.list("fonts/");
-                            found = false;
-                            for (String font : fonts) {
-                                if (typefaceFile.equals(font)) {
-                                    found = true;
-                                }
-                            }
-                        } catch (IOException e1) {
-                            if (LOG_LEVEL >= LOG_LEVEL_ERROR) {
-                                Log.e(TAG, "Failed listing assets directory for /fonts", e);
-                            }
-                        }
-                        if (!found) {
-                            if (LOG_LEVEL >= LOG_LEVEL_ERROR) {
-                                Log.e(TAG, "Typeface is missing from assets: " + typefaceFile);
-                            }
-                        } else {
-                            if (LOG_LEVEL >= LOG_LEVEL_ERROR) {
-                                Log.e(TAG, "Failed to create typeface from assets: " + typefaceFile, e);
-                            }
-                        }
-                        plain = null;
-                    }
-                    if (plain != null) {
-                        // Adapt the type face with the style
-                        return Typeface.create(plain, styleParam);
-                    }
-                } else {
-                    if (LOG_LEVEL >= LOG_LEVEL_ERROR) {
-                        Log.e(TAG, "Typefaces can only be loaded if assets are provided; " +
-                                "invoke " + Sharp.class.getSimpleName() + " with .withAssets()");
-                    }
-                }
-            }
-            if (defaultTypeface == null) {
-                return Typeface.create(family, styleParam);
-            } else {
-                return Typeface.create(defaultTypeface, styleParam);
-            }
-        }
-    }
-
-    public static void checkAssumedUnits(String unit) {
-        if (sAssumedUnit == null) {
-            sAssumedUnit = unit;
-        }
-        if (!sAssumedUnit.equals(unit)) {
-            throw new IllegalStateException("Mixing units; SVG contains both " + sAssumedUnit + " and " + unit);
-        }
     }
 
     public interface DrawableCallback {
-
         void onDrawableReady(SharpDrawable sharpDrawable);
-
     }
 
     public interface PictureCallback {
-
         void onPictureReady(SharpPicture sharpPicture);
-
     }
-
 }

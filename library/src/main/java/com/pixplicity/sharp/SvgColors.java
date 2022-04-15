@@ -26,6 +26,9 @@ package com.pixplicity.sharp;
 import java.util.HashMap;
 import java.util.Locale;
 
+/**
+ * 常用颜色映射
+ */
 public class SvgColors {
 
     private static HashMap<String, Integer> colors = new HashMap<>();

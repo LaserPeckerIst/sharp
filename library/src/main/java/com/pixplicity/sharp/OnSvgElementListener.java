@@ -30,14 +30,15 @@ import android.graphics.RectF;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+/**
+ * 回调方法
+ */
 @SuppressWarnings("unused")
 public interface OnSvgElementListener {
 
-    void onSvgStart(@NonNull Canvas canvas,
-                    @Nullable RectF bounds);
+    void onSvgStart(@NonNull Canvas canvas, @Nullable RectF bounds);
 
-    void onSvgEnd(@NonNull Canvas canvas,
-                  @Nullable RectF bounds);
+    void onSvgEnd(@NonNull Canvas canvas, @Nullable RectF bounds);
 
     <T> T onSvgElement(@Nullable String id,
                        @NonNull T element,

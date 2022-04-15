@@ -30,10 +30,47 @@ package com.pixplicity.sharp;
  */
 public class SvgParserHelper {
 
+
+    /**
+     * Array of powers of ten. Using double instead of float gives a tiny bit more precision.
+     */
+    private static final double[] pow10 = new double[128];
+
+    static {
+        for (int i = 0; i < pow10.length; i++) {
+            pow10[i] = Math.pow(10, i);
+        }
+    }
+
+    /**
+     * Computes a float from mantissa and exponent.
+     */
+    public static float buildFloat(int mant, int exp) {
+        if (exp < -125 || mant == 0) {
+            return 0.0f;
+        }
+
+        if (exp >= 128) {
+            return (mant > 0)
+                    ? Float.POSITIVE_INFINITY
+                    : Float.NEGATIVE_INFINITY;
+        }
+
+        if (exp == 0) {
+            return mant;
+        }
+
+        if (mant >= (1 << 26)) {
+            mant++;  // round up trailing bits if they will be dropped.
+        }
+
+        return (float) ((exp > 0) ? mant * pow10[exp] : mant / pow10[-exp]);
+    }
+
     private char current;
-    private CharSequence s;
+    private final CharSequence s;
     public int pos;
-    private int n;
+    private final int n;
 
     public SvgParserHelper(CharSequence s, int pos) {
         this.s = s;
@@ -359,42 +396,6 @@ public class SvgParserHelper {
 
     private void reportUnexpectedCharacterError(char c) {
         throw new RuntimeException("Unexpected char '" + c + "'.");
-    }
-
-    /**
-     * Computes a float from mantissa and exponent.
-     */
-    public static float buildFloat(int mant, int exp) {
-        if (exp < -125 || mant == 0) {
-            return 0.0f;
-        }
-
-        if (exp >= 128) {
-            return (mant > 0)
-                    ? Float.POSITIVE_INFINITY
-                    : Float.NEGATIVE_INFINITY;
-        }
-
-        if (exp == 0) {
-            return mant;
-        }
-
-        if (mant >= (1 << 26)) {
-            mant++;  // round up trailing bits if they will be dropped.
-        }
-
-        return (float) ((exp > 0) ? mant * pow10[exp] : mant / pow10[-exp]);
-    }
-
-    /**
-     * Array of powers of ten. Using double instead of float gives a tiny bit more precision.
-     */
-    private static final double[] pow10 = new double[128];
-
-    static {
-        for (int i = 0; i < pow10.length; i++) {
-            pow10[i] = Math.pow(10, i);
-        }
     }
 
     public float nextFloat() {
