@@ -54,6 +54,8 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.angcyo.svg.DrawElement;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -1127,6 +1129,13 @@ public abstract class Sharp {
         }
     }
 
+    private boolean onCanvasDraw(Canvas canvas, DrawElement drawElement) {
+        if (mOnElementListener != null) {
+            return mOnElementListener.onCanvasDraw(canvas, drawElement);
+        }
+        return false;
+    }
+
     //</editor-fold desc="回调">
 
     private static class Gradient {
@@ -1289,6 +1298,7 @@ public abstract class Sharp {
 
         private final Sharp mSharp;
         private Picture mPicture;
+
         private Canvas mCanvas;
         private Paint mStrokePaint;
         private boolean mStrokeSet = false;
@@ -1346,6 +1356,10 @@ public abstract class Sharp {
                                            @NonNull T element,
                                            @Nullable Paint paint) {
             mSharp.onSvgElementDrawn(id, element, mCanvas, paint);
+        }
+
+        private boolean onCanvasDraw(Canvas canvas, DrawElement drawElement) {
+            return mSharp.onCanvasDraw(canvas, drawElement);
         }
 
         //</editor-fold desc="触发解析回调">
@@ -2015,8 +2029,7 @@ public abstract class Sharp {
                     RectF r = new RectF(0, 0, mCanvas.getWidth(), mCanvas.getHeight());
                     m.mapRect(r);
                     // Store the layer with the opacity value
-                    mCanvas.saveLayerAlpha(r,
-                            (int) (255 * opacity), Canvas.ALL_SAVE_FLAG);
+                    mCanvas.saveLayerAlpha(r, (int) (255 * opacity), Canvas.ALL_SAVE_FLAG);
                 } else {
                     mCanvas.save();
                 }
@@ -2070,16 +2083,32 @@ public abstract class Sharp {
                 if (doFill(props, mRect)) {
                     mRect = onSvgElement(id, mRect, mRect, mFillPaint);
                     if (mRect != null) {
-                        mCanvas.drawRoundRect(mRect, rx, ry, mFillPaint);
-                        onSvgElementDrawn(id, mRect, mFillPaint);
+                        DrawElement drawElement = new DrawElement();
+                        drawElement.type = DrawElement.DrawType.ROUND_RECT;
+                        drawElement.paint = mFillPaint;
+                        drawElement.element = mRect;
+                        drawElement.rx = rx;
+                        drawElement.ry = ry;
+                        if (!onCanvasDraw(mCanvas, drawElement)) {
+                            mCanvas.drawRoundRect(mRect, rx, ry, mFillPaint);
+                            onSvgElementDrawn(id, mRect, mFillPaint);
+                        }
                     }
                     doLimits(mRect);
                 }
                 if (doStroke(props, mRect)) {
                     mRect = onSvgElement(id, mRect, mRect, mStrokePaint);
                     if (mRect != null) {
-                        mCanvas.drawRoundRect(mRect, rx, ry, mStrokePaint);
-                        onSvgElementDrawn(id, mRect, mStrokePaint);
+                        DrawElement drawElement = new DrawElement();
+                        drawElement.type = DrawElement.DrawType.ROUND_RECT;
+                        drawElement.paint = mStrokePaint;
+                        drawElement.element = mRect;
+                        drawElement.rx = rx;
+                        drawElement.ry = ry;
+                        if (!onCanvasDraw(mCanvas, drawElement)) {
+                            mCanvas.drawRoundRect(mRect, rx, ry, mStrokePaint);
+                            onSvgElementDrawn(id, mRect, mStrokePaint);
+                        }
                     }
                     doLimits(mRect, mStrokePaint);
                 }
@@ -2096,8 +2125,14 @@ public abstract class Sharp {
                     mRect.set(mLine);
                     mLine = onSvgElement(id, mLine, mRect, mStrokePaint);
                     if (mLine != null) {
-                        mCanvas.drawLine(mLine.left, mLine.top, mLine.right, mLine.bottom, mStrokePaint);
-                        onSvgElementDrawn(id, mLine, mStrokePaint);
+                        DrawElement drawElement = new DrawElement();
+                        drawElement.type = DrawElement.DrawType.LINE;
+                        drawElement.paint = mStrokePaint;
+                        drawElement.element = mLine;
+                        if (!onCanvasDraw(mCanvas, drawElement)) {
+                            mCanvas.drawLine(mLine.left, mLine.top, mLine.right, mLine.bottom, mStrokePaint);
+                            onSvgElementDrawn(id, mLine, mStrokePaint);
+                        }
                     }
                     doLimits(mRect, mStrokePaint);
                     popTransform();
@@ -2120,16 +2155,28 @@ public abstract class Sharp {
                     if (doFill(props, mRect)) {
                         mRect = onSvgElement(id, mRect, mRect, mFillPaint);
                         if (mRect != null) {
-                            mCanvas.drawOval(mRect, mFillPaint);
-                            onSvgElementDrawn(id, mRect, mFillPaint);
+                            DrawElement drawElement = new DrawElement();
+                            drawElement.type = DrawElement.DrawType.OVAL;
+                            drawElement.paint = mFillPaint;
+                            drawElement.element = mRect;
+                            if (!onCanvasDraw(mCanvas, drawElement)) {
+                                mCanvas.drawOval(mRect, mFillPaint);
+                                onSvgElementDrawn(id, mRect, mFillPaint);
+                            }
                         }
                         doLimits(mRect);
                     }
                     if (doStroke(props, mRect)) {
                         mRect = onSvgElement(id, mRect, mRect, mStrokePaint);
                         if (mRect != null) {
-                            mCanvas.drawOval(mRect, mStrokePaint);
-                            onSvgElementDrawn(id, mRect, mStrokePaint);
+                            DrawElement drawElement = new DrawElement();
+                            drawElement.type = DrawElement.DrawType.OVAL;
+                            drawElement.paint = mStrokePaint;
+                            drawElement.element = mRect;
+                            if (!onCanvasDraw(mCanvas, drawElement)) {
+                                mCanvas.drawOval(mRect, mStrokePaint);
+                                onSvgElementDrawn(id, mRect, mStrokePaint);
+                            }
                         }
                         doLimits(mRect, mStrokePaint);
                     }
@@ -2156,16 +2203,28 @@ public abstract class Sharp {
                         if (doFill(props, mRect)) {
                             p = onSvgElement(id, p, mRect, mFillPaint);
                             if (p != null) {
-                                mCanvas.drawPath(p, mFillPaint);
-                                onSvgElementDrawn(id, p, mFillPaint);
+                                DrawElement drawElement = new DrawElement();
+                                drawElement.type = DrawElement.DrawType.PATH;
+                                drawElement.paint = mFillPaint;
+                                drawElement.element = p;
+                                if (!onCanvasDraw(mCanvas, drawElement)) {
+                                    mCanvas.drawPath(p, mFillPaint);
+                                    onSvgElementDrawn(id, p, mFillPaint);
+                                }
                             }
                             doLimits(mRect);
                         }
                         if (doStroke(props, mRect)) {
                             p = onSvgElement(id, p, mRect, mStrokePaint);
                             if (p != null) {
-                                mCanvas.drawPath(p, mStrokePaint);
-                                onSvgElementDrawn(id, p, mStrokePaint);
+                                DrawElement drawElement = new DrawElement();
+                                drawElement.type = DrawElement.DrawType.PATH;
+                                drawElement.paint = mStrokePaint;
+                                drawElement.element = p;
+                                if (!onCanvasDraw(mCanvas, drawElement)) {
+                                    mCanvas.drawPath(p, mStrokePaint);
+                                    onSvgElementDrawn(id, p, mStrokePaint);
+                                }
                             }
                             doLimits(mRect, mStrokePaint);
                         }
@@ -2197,16 +2256,28 @@ public abstract class Sharp {
                 if (doFill(props, mRect)) {
                     p = onSvgElement(id, p, mRect, mFillPaint);
                     if (p != null) {
-                        mCanvas.drawPath(p, mFillPaint);
-                        onSvgElementDrawn(id, p, mFillPaint);
+                        DrawElement drawElement = new DrawElement();
+                        drawElement.type = DrawElement.DrawType.PATH;
+                        drawElement.paint = mFillPaint;
+                        drawElement.element = p;
+                        if (!onCanvasDraw(mCanvas, drawElement)) {
+                            mCanvas.drawPath(p, mFillPaint);
+                            onSvgElementDrawn(id, p, mFillPaint);
+                        }
                     }
                     doLimits(mRect);
                 }
                 if (doStroke(props, mRect)) {
                     p = onSvgElement(id, p, mRect, mStrokePaint);
                     if (p != null) {
-                        mCanvas.drawPath(p, mStrokePaint);
-                        onSvgElementDrawn(id, p, mStrokePaint);
+                        DrawElement drawElement = new DrawElement();
+                        drawElement.type = DrawElement.DrawType.PATH;
+                        drawElement.paint = mStrokePaint;
+                        drawElement.element = p;
+                        if (!onCanvasDraw(mCanvas, drawElement)) {
+                            mCanvas.drawPath(p, mStrokePaint);
+                            onSvgElementDrawn(id, p, mStrokePaint);
+                        }
                     }
                     doLimits(mRect, mStrokePaint);
                 }
@@ -2466,42 +2537,50 @@ public abstract class Sharp {
             private void drawText(Canvas canvas, SvgText text, boolean fill) {
                 TextPaint paint = fill ? text.fill : text.stroke;
                 text = onSvgElement(id, text, text.bounds, paint);
-                if (text != null) {
-                    if (text.xCoords != null && text.xCoords.length > 0) {
-                        // Draw each glyph separately according to their x coordinates
-                        int i = 0;
-                        Float thisX = parseFloat(text.xCoords[0], null);
-                        Float nextX = 0f;
-                        if (thisX != null) {
-                            float x = thisX;
-                            for (i = 0; i < text.text.length(); i++) {
-                                if (i >= text.xCoords.length) {
-                                    // Break early so we can draw the rest of the characters in one go
-                                    i--;
-                                    break;
-                                }
-                                if (i + 1 < text.xCoords.length) {
-                                    nextX = parseFloat(text.xCoords[i + 1], null);
-                                    if (nextX == null) {
+
+                DrawElement drawElement = new DrawElement();
+                drawElement.type = DrawElement.DrawType.TEXT;
+                drawElement.paint = paint;
+                drawElement.element = text;
+
+                if (!onCanvasDraw(canvas, drawElement)) {
+                    if (text != null) {
+                        if (text.xCoords != null && text.xCoords.length > 0) {
+                            // Draw each glyph separately according to their x coordinates
+                            int i = 0;
+                            Float thisX = parseFloat(text.xCoords[0], null);
+                            Float nextX = 0f;
+                            if (thisX != null) {
+                                float x = thisX;
+                                for (i = 0; i < text.text.length(); i++) {
+                                    if (i >= text.xCoords.length) {
                                         // Break early so we can draw the rest of the characters in one go
                                         i--;
                                         break;
                                     }
+                                    if (i + 1 < text.xCoords.length) {
+                                        nextX = parseFloat(text.xCoords[i + 1], null);
+                                        if (nextX == null) {
+                                            // Break early so we can draw the rest of the characters in one go
+                                            i--;
+                                            break;
+                                        }
+                                    }
+                                    // Draw the glyph
+                                    String s = new String(new char[]{text.text.charAt(i)});
+                                    canvas.drawText(s, x + text.xOffset, text.y + text.yOffset, paint);
+                                    x = nextX;
                                 }
-                                // Draw the glyph
-                                String s = new String(new char[]{text.text.charAt(i)});
-                                canvas.drawText(s, x + text.xOffset, text.y + text.yOffset, paint);
-                                x = nextX;
                             }
+                            if (i < text.text.length()) {
+                                canvas.drawText(text.text.substring(i), x + text.xOffset, text.y + text.yOffset, paint);
+                            }
+                        } else {
+                            // Draw the entire string
+                            canvas.drawText(text.text, text.x + text.xOffset, text.y + text.yOffset, paint);
                         }
-                        if (i < text.text.length()) {
-                            canvas.drawText(text.text.substring(i), x + text.xOffset, text.y + text.yOffset, paint);
-                        }
-                    } else {
-                        // Draw the entire string
-                        canvas.drawText(text.text, text.x + text.xOffset, text.y + text.yOffset, paint);
+                        onSvgElementDrawn(text.id, text, paint);
                     }
-                    onSvgElementDrawn(text.id, text, paint);
                 }
             }
         }

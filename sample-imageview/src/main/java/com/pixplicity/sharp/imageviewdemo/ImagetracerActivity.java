@@ -13,8 +13,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
@@ -52,6 +54,8 @@ public class ImagetracerActivity extends Activity {
     private static final int CAMERA_REQUEST = 1888; // field
     String mimeType = "text/html";
     String encoding = "utf-8";
+
+    TextView svgStringView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,6 +149,13 @@ public class ImagetracerActivity extends Activity {
         // Optionselector widgets
         os = new Optionselector(optionsrange);
         ll.addView(os.getView());
+
+        //svg string
+        svgStringView = new TextView(this);
+        svgStringView.setLayoutParams(new ViewGroup.LayoutParams(-1, -2));
+        svgStringView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        svgStringView.setTextColor(Color.BLACK);
+        ll.addView(svgStringView);
 
         // Displaying UI
         setContentView(sv);
@@ -302,6 +313,7 @@ public class ImagetracerActivity extends Activity {
             try {
                 svgstring = ImageTracerAndroid.imageToSVG(picture, os.getvals(), null);
                 ImageTracerAndroid.saveString(imageTracerAppFolder.getAbsolutePath() + "/" + timestamp() + ".svg", svgstring);
+                svgStringView.setText(svgstring);
                 wv.loadDataWithBaseURL("", svgstring, mimeType, encoding, "");
             } catch (Exception e) {
                 log(" Error tracing photo " + e.toString());

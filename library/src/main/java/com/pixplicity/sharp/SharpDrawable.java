@@ -36,6 +36,10 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 
+import com.angcyo.svg.CustomPath;
+
+import java.util.List;
+
 public class SharpDrawable extends PictureDrawable {
 
     private static final String TAG = SharpDrawable.class.getSimpleName();
@@ -50,6 +54,11 @@ public class SharpDrawable extends PictureDrawable {
     private Bitmap mCacheBitmap;
     private float mCacheScale = 1f;
     private int alpha = 255;
+
+    /**
+     * 存储的绘制原始数据
+     */
+    public List<CustomPath> pathList;
 
     /**
      * Construct a new drawable referencing the specified picture. The picture

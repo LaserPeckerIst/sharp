@@ -30,6 +30,8 @@ import android.graphics.RectF;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.angcyo.svg.DrawElement;
+
 /**
  * 回调方法
  */
@@ -52,4 +54,10 @@ public interface OnSvgElementListener {
                                @NonNull Canvas canvas,
                                @Nullable Paint paint);
 
+    /**
+     * 当[canvas]开始绘制元素时调用
+     *
+     * @return true 表示拦截默认处理
+     */
+    boolean onCanvasDraw(Canvas canvas, DrawElement drawElement);
 }

@@ -54,6 +54,10 @@ import java.util.TreeMap;
 /**
  * https://github.com/jankovicsandras/imagetracerandroid
  * 2022-4-12
+ * <p>
+ * Bitmap(PNG, JPG, GIF, BMP, etc.) 转 SVG
+ * <p>
+ * [com.angcyo.svg.ImageTracerAndroid#imagedataToSVG(com.angcyo.svg.ImageTracerAndroid.ImageData, java.util.HashMap, byte[][])]
  */
 public class ImageTracerAndroid {
 
@@ -86,7 +90,6 @@ public class ImageTracerAndroid {
         }
     }
 
-
     // Saving a String as a file
     public static void saveString(String filename, String str) throws Exception {
         File file = new File(filename);
@@ -99,7 +102,6 @@ public class ImageTracerAndroid {
         bw.write(str);
         bw.close();
     }
-
 
     // Loading a file to ImageData, ARGB byte order
     public static ImageData loadImageData(String filename) throws Exception {
@@ -123,7 +125,6 @@ public class ImageTracerAndroid {
         return new ImageData(width, height, data);
     }
 
-
     // The bitshift method in loadImageData creates signed bytes where -1 -> 255 unsigned ; -128 -> 128 unsigned ;
     // 127 -> 127 unsigned ; 0 -> 0 unsigned ; These will be converted to -128 (representing 0 unsigned) ...
     // 127 (representing 255 unsigned) and tosvgcolorstr will add +128 to create RGB values 0..255
@@ -134,7 +135,6 @@ public class ImageTracerAndroid {
             return (byte) (b - 128);
         }
     }
-
 
     ////////////////////////////////////////////////////////////
     //
@@ -155,14 +155,12 @@ public class ImageTracerAndroid {
         return imagedataToSVG(imgd, options, palette);
     }// End of imageToSVG()
 
-
     // Tracing ImageData, then returning the SVG String
     public static String imagedataToSVG(ImageData imgd, HashMap<String, Float> options, byte[][] palette) {
         options = checkoptions(options);
         IndexedImage ii = imagedataToTracedata(imgd, options, palette);
         return getsvgstring(ii, options);
     }// End of imagedataToSVG()
-
 
     // Loading an image from a file, tracing when loaded, then returning IndexedImage with tracedata in layers
     public IndexedImage imageToTracedata(String filename, HashMap<String, Float> options, byte[][] palette) throws Exception {
@@ -176,7 +174,6 @@ public class ImageTracerAndroid {
         ImageData imgd = loadImageData(bitmap);
         return imagedataToTracedata(imgd, options, palette);
     }// End of imageToTracedata()
-
 
     // Tracing ImageData, then returning IndexedImage with tracedata in layers
     public static IndexedImage imagedataToTracedata(ImageData imgd, HashMap<String, Float> options, byte[][] palette) {
@@ -192,7 +189,6 @@ public class ImageTracerAndroid {
         ii.layers = batchtracelayers(bis, options.get("ltres"), options.get("qtres"));
         return ii;
     }// End of imagedataToTracedata()
-
 
     // creating options object, setting defaults for missing values
     public static HashMap<String, Float> checkoptions(HashMap<String, Float> options) {
@@ -254,7 +250,6 @@ public class ImageTracerAndroid {
 
         return options;
     }// End of checkoptions()
-
 
     ////////////////////////////////////////////////////////////
     //
@@ -376,7 +371,6 @@ public class ImageTracerAndroid {
         return new IndexedImage(arr, palette);
     }// End of colorquantization
 
-
     // Generating a palette with numberofcolors, array[numberofcolors][4] where [i][0] = R ; [i][1] = G ; [i][2] = B ; [i][3] = A
     public static byte[][] generatepalette(int numberofcolors) {
         byte[][] palette = new byte[numberofcolors][4];
@@ -484,7 +478,6 @@ public class ImageTracerAndroid {
 
         return layers;
     }// End of layering()
-
 
     // Lookup tables for pathscan
     static byte[] pathscan_dir_lookup = {0, 0, 3, 0, 1, 0, 3, 0, 0, 3, 3, 1, 0, 3, 0, 0};
@@ -980,16 +973,13 @@ public class ImageTracerAndroid {
 
     }// End of getsvgstring()
 
-
     static String tosvgcolorstr(byte[] c) {
         return "fill=\"rgb(" + (c[0] + 128) + "," + (c[1] + 128) + "," + (c[2] + 128) + ")\" stroke=\"rgb(" + (c[0] + 128) + "," + (c[1] + 128) + "," + (c[2] + 128) + ")\" stroke-width=\"1\" opacity=\"" + ((c[3] + 128) / 255.0) + "\" ";
     }
 
-
     // Gaussian kernels for blur
     static double[][] gks = {{0.27901, 0.44198, 0.27901}, {0.135336, 0.228569, 0.272192, 0.228569, 0.135336}, {0.086776, 0.136394, 0.178908, 0.195843, 0.178908, 0.136394, 0.086776},
             {0.063327, 0.093095, 0.122589, 0.144599, 0.152781, 0.144599, 0.122589, 0.093095, 0.063327}, {0.049692, 0.069304, 0.089767, 0.107988, 0.120651, 0.125194, 0.120651, 0.107988, 0.089767, 0.069304, 0.049692}};
-
 
     // Selective Gaussian blur for preprocessing
     static ImageData blur(ImageData imgd, float rad, float del) {

@@ -42,8 +42,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.angcyo.svg.Svg;
+import com.angcyo.svg.SvgElementListener;
 import com.jsibbold.zoomage.ZoomageView;
-import com.pixplicity.sharp.OnSvgElementListener;
 import com.pixplicity.sharp.Sharp;
 import com.pixplicity.sharp.SharpDrawable;
 import com.pixplicity.sharp.SharpPicture;
@@ -53,6 +54,7 @@ import java.util.Random;
 public class SvgDemoActivity extends AppCompatActivity {
 
     private ZoomageView mImageView;
+    private ZoomageView svgPathImage;
     private Button mButton;
 
     private Sharp mSvg;
@@ -68,6 +70,7 @@ public class SvgDemoActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         mImageView = findViewById(R.id.iv_image);
+        svgPathImage = findViewById(R.id.svg_path_image);
         mButton = findViewById(R.id.bt_button);
 
         Sharp.setLogLevel(Sharp.LOG_LEVEL_INFO);
@@ -87,6 +90,8 @@ public class SvgDemoActivity extends AppCompatActivity {
         });
 
         reloadSvg(false);
+
+        svgPathImage.setImageDrawable(Svg.loadSvgPathDrawable(Sharp.loadResource(getResources(), R.raw.cartman2), Color.WHITE, Paint.Style.STROKE));
     }
 
     @Override
@@ -105,17 +110,7 @@ public class SvgDemoActivity extends AppCompatActivity {
     }
 
     private void reloadSvg(final boolean changeColor) {
-        mSvg.setOnElementListener(new OnSvgElementListener() {
-
-            @Override
-            public void onSvgStart(@NonNull Canvas canvas,
-                                   @Nullable RectF bounds) {
-            }
-
-            @Override
-            public void onSvgEnd(@NonNull Canvas canvas,
-                                 @Nullable RectF bounds) {
-            }
+        mSvg.setOnElementListener(new SvgElementListener() {
 
             @Override
             public <T> T onSvgElement(@Nullable String id,
@@ -132,14 +127,6 @@ public class SvgDemoActivity extends AppCompatActivity {
                 }
                 return element;
             }
-
-            @Override
-            public <T> void onSvgElementDrawn(@Nullable String id,
-                                              @NonNull T element,
-                                              @NonNull Canvas canvas,
-                                              @Nullable Paint paint) {
-            }
-
         });
         mSvg.getSharpPicture(new Sharp.PictureCallback() {
             @Override

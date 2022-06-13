@@ -1,5 +1,4 @@
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -20,6 +19,21 @@
         app:zoomage_translatable="true"
         app:zoomage_zoomable="true" />
 
+    <com.jsibbold.zoomage.ZoomageView
+        android:id="@+id/svg_path_image"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_gravity="right"
+        android:layout_marginTop="80dp"
+        app:zoomage_animateOnReset="true"
+        app:zoomage_autoCenter="true"
+        app:zoomage_autoResetMode="UNDER"
+        app:zoomage_maxScale="10"
+        app:zoomage_minScale="0.5"
+        app:zoomage_restrictBounds="false"
+        app:zoomage_translatable="true"
+        app:zoomage_zoomable="true" />
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -27,7 +41,7 @@
         android:background="#80000000"
         android:minHeight="?attr/actionBarSize"
         app:navigationIcon="@mipmap/ic_launcher"
-        app:theme="@style/ThemeOverlay.AppCompat.ActionBar"/>
+        app:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
 
     <Button
         android:id="@+id/bt_button"
@@ -36,7 +50,7 @@
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="48dp"
         android:drawablePadding="8dp"
-        android:text="@string/change_color"/>
+        android:text="@string/change_color" />
 
     <TextView
         android:id="@+id/tv_info"
@@ -45,6 +59,6 @@
         android:layout_gravity="bottom|center_horizontal"
         android:autoLink="web"
         android:padding="8dp"
-        android:text="@string/info_link"/>
+        android:text="@string/info_link" />
 
 </FrameLayout>
