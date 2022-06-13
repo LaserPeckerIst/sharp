@@ -118,12 +118,17 @@ public class Svg {
             Paint.Style paintStyle = path.paint.getStyle();
             if (drawStyle == null) {
                 canvas.drawPath(path, path.paint);
-            } else if (paintStyle == Paint.Style.FILL_AND_STROKE || paintStyle == drawStyle) {
-                path.paint.setStyle(drawStyle);
-                canvas.drawPath(path, path.paint);
             } else {
-                path.paint.setStyle(drawStyle);
-                canvas.drawPath(path, path.paint);
+                if (drawStyle == Paint.Style.STROKE) {
+                    path.paint.setStrokeWidth(1f);//强制使用1个像素
+                }
+                if (paintStyle == Paint.Style.FILL_AND_STROKE || paintStyle == drawStyle) {
+                    path.paint.setStyle(drawStyle);
+                    canvas.drawPath(path, path.paint);
+                } else {
+                    path.paint.setStyle(drawStyle);
+                    canvas.drawPath(path, path.paint);
+                }
             }
         }
         picture.endRecording();
