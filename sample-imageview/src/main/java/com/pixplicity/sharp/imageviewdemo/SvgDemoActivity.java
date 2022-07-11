@@ -91,7 +91,7 @@ public class SvgDemoActivity extends AppCompatActivity {
 
         reloadSvg(false);
 
-        svgPathImage.setImageDrawable(Svg.loadSvgPathDrawable(Sharp.loadResource(getResources(), R.raw.cartman2), Color.WHITE, Paint.Style.STROKE));
+        svgPathImage.setImageDrawable(Svg.loadSvgPathDrawable(Sharp.loadResource(getResources(), R.raw.cartman2), Color.WHITE, Paint.Style.STROKE, null));
     }
 
     @Override

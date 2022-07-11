@@ -51,15 +51,20 @@ public class Svg {
      * 将Svg中的路径数据转换成Drawable. 只提取路径
      * [color] 强制颜色, 0表示不指定, 使用原生的颜色
      * [drawStyle] 强制使用此样式绘制. null表示不限制
+     * [pathPaint] 强制使用此画笔, 此时[color] [drawStyle]属性无效
      */
     @NonNull
-    public static SharpDrawable loadSvgPathDrawable(@NonNull String svgData, final int color, Paint.Style drawStyle) {
+    public static SharpDrawable loadSvgPathDrawable(@NonNull String svgData, final int color, Paint.Style drawStyle, Paint pathPaint) {
         Sharp sharp = Sharp.loadString(svgData);
-        return loadSvgPathDrawable(sharp, color, drawStyle);
+        return loadSvgPathDrawable(sharp, color, drawStyle, pathPaint);
+    }
+
+    public static SharpDrawable loadSvgPathDrawable(@NonNull String svgData, final int color, Paint.Style drawStyle) {
+        return loadSvgPathDrawable(svgData, color, drawStyle, null);
     }
 
     @NonNull
-    public static SharpDrawable loadSvgPathDrawable(Sharp sharp, final int color, Paint.Style drawStyle) {
+    public static SharpDrawable loadSvgPathDrawable(Sharp sharp, final int color, Paint.Style drawStyle, Paint pathPaint) {
         final RectF pathBounds = new RectF(Float.MAX_VALUE, Float.MAX_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
         final List<CustomPath> pathList = new ArrayList<>();
         sharp.setOnElementListener(new SvgElementListener() {
@@ -115,20 +120,24 @@ public class Svg {
         canvas.translate(-pathBounds.left, -pathBounds.top);
         for (int i = 0; i < pathList.size(); i++) {
             CustomPath path = pathList.get(i);
-            Paint.Style paintStyle = path.paint.getStyle();
-            if (drawStyle == null) {
-                canvas.drawPath(path, path.paint);
-            } else {
-                if (drawStyle == Paint.Style.STROKE) {
-                    path.paint.setStrokeWidth(1f);//强制使用1个像素
-                }
-                if (paintStyle == Paint.Style.FILL_AND_STROKE || paintStyle == drawStyle) {
-                    path.paint.setStyle(drawStyle);
+            if (pathPaint == null) {
+                Paint.Style paintStyle = path.paint.getStyle();
+                if (drawStyle == null) {
                     canvas.drawPath(path, path.paint);
                 } else {
-                    path.paint.setStyle(drawStyle);
-                    canvas.drawPath(path, path.paint);
+                    if (drawStyle == Paint.Style.STROKE) {
+                        path.paint.setStrokeWidth(1f);//强制使用1个像素
+                    }
+                    if (paintStyle == Paint.Style.FILL_AND_STROKE || paintStyle == drawStyle) {
+                        path.paint.setStyle(drawStyle);
+                        canvas.drawPath(path, path.paint);
+                    } else {
+                        path.paint.setStyle(drawStyle);
+                        canvas.drawPath(path, path.paint);
+                    }
                 }
+            } else {
+                canvas.drawPath(path, pathPaint);
             }
         }
         picture.endRecording();
