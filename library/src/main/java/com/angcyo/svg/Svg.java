@@ -53,18 +53,24 @@ public class Svg {
      * [drawStyle] 强制使用此样式绘制. null表示不限制
      * [pathPaint] 强制使用此画笔, 此时[color] [drawStyle]属性无效
      */
-    @NonNull
-    public static SharpDrawable loadSvgPathDrawable(@NonNull String svgData, final int color, Paint.Style drawStyle, Paint pathPaint) {
+    @Nullable
+    public static SharpDrawable loadSvgPathDrawable(@NonNull String svgData, final int color, Paint.Style drawStyle, Paint pathPaint, int viewWidth, int viewHeight) {
         Sharp sharp = Sharp.loadString(svgData);
-        return loadSvgPathDrawable(sharp, color, drawStyle, pathPaint);
+        return loadSvgPathDrawable(sharp, color, drawStyle, pathPaint, viewWidth, viewHeight);
     }
 
-    public static SharpDrawable loadSvgPathDrawable(@NonNull String svgData, final int color, Paint.Style drawStyle) {
-        return loadSvgPathDrawable(svgData, color, drawStyle, null);
+    @Nullable
+    public static SharpDrawable loadSvgPathDrawable(@NonNull String svgData, final int color, Paint.Style drawStyle, int viewWidth, int viewHeight) {
+        return loadSvgPathDrawable(svgData, color, drawStyle, null, viewWidth, viewHeight);
     }
 
-    @NonNull
-    public static SharpDrawable loadSvgPathDrawable(Sharp sharp, final int color, Paint.Style drawStyle, Paint pathPaint) {
+    /**
+     * [pathPaint] 强制指定路径的画笔, 会覆盖[drawStyle]参数
+     * [viewWidth] [viewHeight] 当前[SharpDrawable]需要显示在的可视化宽高, 用来scale[pathPaint.setStrokeWidth]线的宽度
+     * 负数不生效, 并且需要使用[pathPaint]参数, 才能生效
+     */
+    @Nullable
+    public static SharpDrawable loadSvgPathDrawable(Sharp sharp, final int color, Paint.Style drawStyle, Paint pathPaint, int viewWidth, int viewHeight) {
         final RectF pathBounds = new RectF(Float.MAX_VALUE, Float.MAX_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
         final List<CustomPath> pathList = new ArrayList<>();
         sharp.setOnElementListener(new SvgElementListener() {
@@ -112,12 +118,25 @@ public class Svg {
                 return true;
             }
         });
-        //解析
+        //触发解析, 之后才有回调
         sharp.getSharpPicture();
+        if (pathBounds.width() <= 0 || pathBounds.height() <= 0) {
+            return null;
+        }
+
         //绘制
         Picture picture = new Picture();
         Canvas canvas = picture.beginRecording((int) Math.ceil(pathBounds.width()), (int) Math.ceil(pathBounds.height()));
         canvas.translate(-pathBounds.left, -pathBounds.top);
+
+        if (pathPaint != null && viewWidth > 0 && viewHeight > 0) {
+            float strokeWidth = pathPaint.getStrokeWidth();
+            float scaleWidth = viewWidth / pathBounds.width();
+            float scaleHeight = viewHeight / pathBounds.height();
+            float scale = Math.max(scaleWidth, scaleHeight);
+            pathPaint.setStrokeWidth(strokeWidth / scale);
+        }
+
         for (int i = 0; i < pathList.size(); i++) {
             CustomPath path = pathList.get(i);
             if (pathPaint == null) {
