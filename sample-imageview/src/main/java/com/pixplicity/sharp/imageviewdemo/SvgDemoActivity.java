@@ -36,6 +36,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,6 +56,7 @@ public class SvgDemoActivity extends AppCompatActivity {
 
     private ZoomageView mImageView;
     private ZoomageView svgPathImage;
+    private ImageView testImage;
     private Button mButton;
 
     private Sharp mSvg;
@@ -71,6 +73,7 @@ public class SvgDemoActivity extends AppCompatActivity {
 
         mImageView = findViewById(R.id.iv_image);
         svgPathImage = findViewById(R.id.svg_path_image);
+        testImage = findViewById(R.id.test_image_view);
         mButton = findViewById(R.id.bt_button);
 
         Sharp.setLogLevel(Sharp.LOG_LEVEL_INFO);
@@ -91,7 +94,20 @@ public class SvgDemoActivity extends AppCompatActivity {
 
         reloadSvg(false);
 
-        svgPathImage.setImageDrawable(Svg.loadSvgPathDrawable(Sharp.loadResource(getResources(), R.raw.cartman2), Color.WHITE, Paint.Style.STROKE, null));
+        //1.
+        svgPathImage.setImageDrawable(Svg.loadSvgPathDrawable(Sharp.loadResource(getResources(), R.raw.cartman2),
+                Color.WHITE, Paint.Style.STROKE,
+                null, 0, 0));
+
+        //2.
+        float dp = getResources().getDisplayMetrics().density;
+        Paint paint = new Paint();
+        paint.setStrokeWidth(1 * dp);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setColor(Color.RED);
+        testImage.setImageDrawable(Svg.loadSvgPathDrawable(Sharp.loadAsset(getAssets(), "test.svg"),
+                Color.WHITE, Paint.Style.STROKE,
+                paint, (int) (60 * dp), (int) (60 * dp)));
     }
 
     @Override
