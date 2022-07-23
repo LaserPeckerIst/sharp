@@ -36,7 +36,7 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 
-import com.angcyo.svg.CustomPath;
+import com.angcyo.svg.StylePath;
 
 import java.util.List;
 
@@ -58,7 +58,7 @@ public class SharpDrawable extends PictureDrawable {
     /**
      * 存储的绘制原始数据
      */
-    public List<CustomPath> pathList;
+    public List<StylePath> pathList;
 
     /**
      * Construct a new drawable referencing the specified picture. The picture

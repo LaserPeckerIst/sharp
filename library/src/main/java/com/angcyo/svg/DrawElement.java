@@ -45,8 +45,8 @@ public class DrawElement {
         TEXT,
     }
 
-    public CustomPath createCustomPath(int color) {
-        CustomPath path = new CustomPath();
+    public StylePath createCustomPath(int color) {
+        StylePath path = new StylePath();
         path.paint = new Paint(paint);
         if (color != Color.TRANSPARENT) {
             path.paint.setColor(color); //强制使用颜色

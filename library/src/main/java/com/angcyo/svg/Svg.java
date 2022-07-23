@@ -72,12 +72,12 @@ public class Svg {
     @Nullable
     public static SharpDrawable loadSvgPathDrawable(Sharp sharp, final int color, Paint.Style drawStyle, Paint pathPaint, int viewWidth, int viewHeight) {
         final RectF pathBounds = new RectF(Float.MAX_VALUE, Float.MAX_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
-        final List<CustomPath> pathList = new ArrayList<>();
+        final List<StylePath> pathList = new ArrayList<>();
         sharp.setOnElementListener(new SvgElementListener() {
             @Override
             public boolean onCanvasDraw(Canvas canvas, DrawElement drawElement) {
                 //拦截
-                CustomPath path = null;
+                StylePath path = null;
                 if (drawElement.type == PATH) {
                     path = drawElement.createCustomPath(color);
                     path.addPath((Path) drawElement.element);
@@ -138,7 +138,7 @@ public class Svg {
         }
 
         for (int i = 0; i < pathList.size(); i++) {
-            CustomPath path = pathList.get(i);
+            StylePath path = pathList.get(i);
             if (pathPaint == null) {
                 Paint.Style paintStyle = path.paint.getStyle();
                 if (drawStyle == null) {
