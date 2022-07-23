@@ -26,8 +26,10 @@ package com.pixplicity.sharp;
 import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Path;
 import android.graphics.Picture;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.drawable.PictureDrawable;
 import android.os.Build;
 import android.os.Looper;
@@ -58,7 +60,12 @@ public class SharpDrawable extends PictureDrawable {
     /**
      * 存储的绘制原始数据
      */
-    public List<StylePath> pathList;
+    public List<Path> pathList;
+
+    /**
+     * 保存路径的矩形范围
+     */
+    public RectF pathBounds;
 
     /**
      * Construct a new drawable referencing the specified picture. The picture

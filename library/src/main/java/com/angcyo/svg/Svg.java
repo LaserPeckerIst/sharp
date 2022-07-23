@@ -2,6 +2,8 @@ package com.angcyo.svg;
 
 import static com.angcyo.svg.DrawElement.DrawType.PATH;
 import static com.angcyo.svg.DrawElement.DrawType.TEXT;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -72,7 +74,7 @@ public class Svg {
     @Nullable
     public static SharpDrawable loadSvgPathDrawable(Sharp sharp, final int color, Paint.Style drawStyle, Paint pathPaint, int viewWidth, int viewHeight) {
         final RectF pathBounds = new RectF(Float.MAX_VALUE, Float.MAX_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
-        final List<StylePath> pathList = new ArrayList<>();
+        final List<Path> pathList = new ArrayList<>();
         sharp.setOnElementListener(new SvgElementListener() {
             @Override
             public boolean onCanvasDraw(Canvas canvas, DrawElement drawElement) {
@@ -109,10 +111,10 @@ public class Svg {
                     path.computeBounds(pathRect, true);
                     pathList.add(path);
 
-                    pathBounds.left = Math.min(pathBounds.left, pathRect.left);
-                    pathBounds.top = Math.min(pathBounds.top, pathRect.top);
-                    pathBounds.right = Math.max(pathBounds.right, pathRect.right);
-                    pathBounds.bottom = Math.max(pathBounds.bottom, pathRect.bottom);
+                    pathBounds.left = min(pathBounds.left, pathRect.left);
+                    pathBounds.top = min(pathBounds.top, pathRect.top);
+                    pathBounds.right = max(pathBounds.right, pathRect.right);
+                    pathBounds.bottom = max(pathBounds.bottom, pathRect.bottom);
                 }
 
                 return true;
@@ -124,6 +126,20 @@ public class Svg {
             return null;
         }
 
+        return loadPathList(pathList, pathBounds, drawStyle, pathPaint, viewWidth, viewHeight);
+    }
+
+    public static SharpDrawable loadPathList(List<Path> pathList,
+                                             RectF pathBounds,
+                                             Paint.Style drawStyle,
+                                             Paint pathPaint,
+                                             int viewWidth,
+                                             int viewHeight) {
+
+        if (pathBounds == null || pathBounds.isEmpty()) {
+            pathBounds = computeBounds(pathList, true);
+        }
+
         //绘制
         Picture picture = new Picture();
         Canvas canvas = picture.beginRecording((int) Math.ceil(pathBounds.width()), (int) Math.ceil(pathBounds.height()));
@@ -133,38 +149,84 @@ public class Svg {
             float strokeWidth = pathPaint.getStrokeWidth();
             float scaleWidth = viewWidth / pathBounds.width();
             float scaleHeight = viewHeight / pathBounds.height();
-            float scale = Math.max(scaleWidth, scaleHeight);
+            float scale = max(scaleWidth, scaleHeight);
             pathPaint.setStrokeWidth(strokeWidth / scale);
         }
 
         for (int i = 0; i < pathList.size(); i++) {
-            StylePath path = pathList.get(i);
+            Path path = pathList.get(i);
+            Paint drawPathPaint = null;
             if (pathPaint == null) {
-                Paint.Style paintStyle = path.paint.getStyle();
-                if (drawStyle == null) {
-                    canvas.drawPath(path, path.paint);
-                } else {
-                    if (drawStyle == Paint.Style.STROKE) {
-                        path.paint.setStrokeWidth(1f);//强制使用1个像素
+                //未强制画笔
+                if (path instanceof StylePath) {
+                    StylePath stylePath = (StylePath) path;
+                    Paint.Style paintStyle = null;
+                    if (stylePath.paint != null) {
+                        paintStyle = stylePath.paint.getStyle();
                     }
-                    if (paintStyle == Paint.Style.FILL_AND_STROKE || paintStyle == drawStyle) {
-                        path.paint.setStyle(drawStyle);
-                        canvas.drawPath(path, path.paint);
+                    if (drawStyle == null) {
+                        //没有指定绘制样式, 则使用默认的
+                        drawPathPaint = stylePath.paint;
                     } else {
-                        path.paint.setStyle(drawStyle);
-                        canvas.drawPath(path, path.paint);
+                        if (drawStyle == Paint.Style.STROKE) {
+                            //强制指定[STROKE]
+                            if (stylePath.paint != null) {
+                                stylePath.paint.setStrokeWidth(1f);//强制使用1个像素
+                            }
+                        }
+                        if (paintStyle == Paint.Style.FILL_AND_STROKE || paintStyle == drawStyle) {
+                            //强制指定[FILL_AND_STROKE]
+                            stylePath.paint.setStyle(drawStyle);
+                        } else {
+                            if (stylePath.paint != null) {
+                                stylePath.paint.setStyle(drawStyle);
+                            }
+                        }
+                        drawPathPaint = stylePath.paint;
+                    }
+                } else {
+                    drawPathPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                    if (drawStyle == null) {
+                        drawPathPaint.setStyle(Paint.Style.STROKE);
+                    } else {
+                        drawPathPaint.setStyle(drawStyle);
                     }
                 }
             } else {
-                canvas.drawPath(path, pathPaint);
+                //强制使用了画笔
+                drawPathPaint = pathPaint;
             }
+            //draw
+            canvas.drawPath(path, drawPathPaint);
         }
         picture.endRecording();
 
+        //result
         SharpDrawable drawable = new SharpDrawable(picture);
         drawable.pathList = pathList;
-        drawable.setBounds((int) pathBounds.left, (int) pathBounds.top, (int) Math.ceil(pathBounds.right), (int) Math.ceil(pathBounds.bottom));
+        drawable.pathBounds = pathBounds;
+        drawable.setBounds((int) pathBounds.left, (int) pathBounds.top,
+                (int) Math.ceil(pathBounds.right), (int) Math.ceil(pathBounds.bottom));
         return drawable;
     }
 
+    /**
+     * 计算一组[Path]的bounds
+     */
+    private static RectF computeBounds(List<Path> pathList, boolean exact) {
+        if (pathList.isEmpty()) {
+            return new RectF();
+        }
+        RectF bounds = new RectF();
+        bounds.set(Float.MAX_VALUE, Float.MAX_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
+        RectF pathRect = new RectF();
+        for (Path path : pathList) {
+            path.computeBounds(pathRect, exact);
+            bounds.left = min(bounds.left, pathRect.left);
+            bounds.top = min(bounds.top, pathRect.top);
+            bounds.right = max(bounds.right, pathRect.right);
+            bounds.bottom = max(bounds.bottom, pathRect.bottom);
+        }
+        return bounds;
+    }
 }
