@@ -1086,6 +1086,9 @@ public abstract class Sharp {
                     case PERCENT:
                         valueF = valueF / 100f;
                         break;
+                    case MM:
+                        valueF = valueF * 96f / 25.4f;
+                        break;
                 }
                 checkAssumedUnits(unit.mAbbreviation);
                 scaleFactor = unit.mScaleFactor;
