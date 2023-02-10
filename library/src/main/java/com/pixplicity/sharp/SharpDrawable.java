@@ -38,8 +38,6 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 
-import com.angcyo.svg.StylePath;
-
 import java.util.List;
 
 public class SharpDrawable extends PictureDrawable {
@@ -66,6 +64,11 @@ public class SharpDrawable extends PictureDrawable {
      * 保存路径的矩形范围
      */
     public RectF pathBounds;
+
+    /**
+     * 这个对象中包含了Svg的ViewBox信息
+     */
+    public SharpPicture sharpPicture;
 
     /**
      * Construct a new drawable referencing the specified picture. The picture

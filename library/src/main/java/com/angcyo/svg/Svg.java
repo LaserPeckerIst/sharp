@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 
 import com.pixplicity.sharp.Sharp;
 import com.pixplicity.sharp.SharpDrawable;
+import com.pixplicity.sharp.SharpPicture;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -121,12 +122,14 @@ public class Svg {
             }
         });
         //触发解析, 之后才有回调
-        sharp.getSharpPicture();
+        SharpPicture sharpPicture = sharp.getSharpPicture();
         if (pathBounds.width() <= 0 || pathBounds.height() <= 0) {
             return null;
         }
 
-        return loadPathList(pathList, pathBounds, drawStyle, pathPaint, viewWidth, viewHeight);
+        SharpDrawable sharpDrawable = loadPathList(pathList, pathBounds, drawStyle, pathPaint, viewWidth, viewHeight);
+        sharpDrawable.sharpPicture = sharpPicture;
+        return sharpDrawable;
     }
 
     public static SharpDrawable loadPathList(List<Path> pathList,
