@@ -1,7 +1,5 @@
 package com.angcyo.svg;
 
-import static com.angcyo.svg.DrawElement.DrawType.PATH;
-import static com.angcyo.svg.DrawElement.DrawType.TEXT;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -81,10 +79,10 @@ public class Svg {
             public boolean onCanvasDraw(Canvas canvas, DrawElement drawElement) {
                 //拦截
                 StylePath path = null;
-                if (drawElement.type == PATH) {
+                if (drawElement.type == DrawElement.DrawType.PATH) {
                     path = drawElement.createCustomPath(color);
                     path.addPath((Path) drawElement.element);
-                } else if (drawElement.type != TEXT) {
+                } else if (drawElement.type != DrawElement.DrawType.TEXT) {
                     RectF rect = (RectF) drawElement.element;
                     switch (drawElement.type) {
                         case LINE:

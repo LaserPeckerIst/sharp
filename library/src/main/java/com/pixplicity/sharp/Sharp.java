@@ -1505,10 +1505,17 @@ public abstract class Sharp {
         }
 
         private boolean doStroke(Properties atts, RectF boundingBox) {
+            return doStroke(atts, boundingBox, null);
+        }
+
+        private boolean doStroke(Properties atts, RectF boundingBox, String defStrokeString) {
             if ("none".equals(atts.getString("display"))) {
                 return false;
             }
             String strokeString = atts.getString("stroke");
+            if (strokeString == null) {
+                strokeString = defStrokeString;
+            }
             if (strokeString != null) {
                 if (strokeString.equalsIgnoreCase("none")) {
                     mStrokePaint.setShader(null);
@@ -2122,7 +2129,7 @@ public abstract class Sharp {
                 Float y1 = getFloatAttr("y1", atts);
                 Float y2 = getFloatAttr("y2", atts);
                 Properties props = new Properties(atts);
-                if (doStroke(props, mRect)) {
+                if (doStroke(props, mRect, "black")) {
                     pushTransform(atts);
                     mLine.set(x1, y1, x2, y2);
                     mRect.set(mLine);
