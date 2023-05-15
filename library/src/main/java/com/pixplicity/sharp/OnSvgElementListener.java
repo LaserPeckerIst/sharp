@@ -59,5 +59,5 @@ public interface OnSvgElementListener {
      *
      * @return true 表示拦截默认处理
      */
-    boolean onCanvasDraw(Canvas canvas, DrawElement drawElement);
+    boolean onCanvasDraw(@NonNull Canvas canvas, @NonNull DrawElement drawElement);
 }

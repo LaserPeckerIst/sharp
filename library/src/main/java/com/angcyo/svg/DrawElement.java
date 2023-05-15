@@ -1,7 +1,13 @@
 package com.angcyo.svg;
 
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
+
+import androidx.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Stack;
 
 /**
  * Sharp绘制元素
@@ -18,6 +24,9 @@ public class DrawElement {
 
     /**
      * 绘制的元素
+     * <p>
+     * 当[type == DrawElement.DrawType.TEXT]时的文本内容
+     * [Sharp.SvgHandler.SvgText]
      */
     public Object element;
 
@@ -31,6 +40,18 @@ public class DrawElement {
      */
     public float rx;
     public float ry;
+
+    /**
+     * 元素的数据, 比如: 路径数据, 文本数据
+     */
+    @Nullable
+    public String data;
+
+    /**
+     * 当前元素绘制时作用的矩阵
+     */
+    @Nullable
+    public Matrix matrix;
 
     public enum DrawType {
         //drawRoundRect
@@ -52,5 +73,32 @@ public class DrawElement {
             path.paint.setColor(color); //强制使用颜色
         }
         return path;
+    }
+
+    public void updateMatrix(Stack<Matrix> stack) {
+        if (!stack.isEmpty()) {
+            matrix = stack.peek();
+        }
+    }
+
+    /**
+     * 将一堆点转成svg path数据
+     */
+    public void updatePointsData(ArrayList<Float> points) {
+        if (points != null) {
+            int size = points.size();
+            if (size > 0) {
+                StringBuilder builder = new StringBuilder();
+                builder.append("m");
+                for (int i = 0; i < size; i += 2) {
+                    builder.append(points.get(i)).append(",");
+                    if (i + 1 < size) {
+                        builder.append(points.get(i + 1)).append(" ");
+                    }
+                }
+                builder.append("Z");
+                data = builder.toString();
+            }
+        }
     }
 }

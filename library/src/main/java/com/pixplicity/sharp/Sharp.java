@@ -2099,6 +2099,7 @@ public abstract class Sharp {
                         drawElement.element = mRect;
                         drawElement.rx = rx;
                         drawElement.ry = ry;
+                        drawElement.updateMatrix(mMatrixStack);
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawRoundRect(mRect, rx, ry, mFillPaint);
                             onSvgElementDrawn(id, mRect, mFillPaint);
@@ -2115,6 +2116,7 @@ public abstract class Sharp {
                         drawElement.element = mRect;
                         drawElement.rx = rx;
                         drawElement.ry = ry;
+                        drawElement.updateMatrix(mMatrixStack);
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawRoundRect(mRect, rx, ry, mStrokePaint);
                             onSvgElementDrawn(id, mRect, mStrokePaint);
@@ -2139,6 +2141,7 @@ public abstract class Sharp {
                         drawElement.type = DrawElement.DrawType.LINE;
                         drawElement.paint = mStrokePaint;
                         drawElement.element = mLine;
+                        drawElement.updateMatrix(mMatrixStack);
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawLine(mLine.left, mLine.top, mLine.right, mLine.bottom, mStrokePaint);
                             onSvgElementDrawn(id, mLine, mStrokePaint);
@@ -2169,6 +2172,7 @@ public abstract class Sharp {
                             drawElement.type = DrawElement.DrawType.OVAL;
                             drawElement.paint = mFillPaint;
                             drawElement.element = mRect;
+                            drawElement.updateMatrix(mMatrixStack);
                             if (!onCanvasDraw(mCanvas, drawElement)) {
                                 mCanvas.drawOval(mRect, mFillPaint);
                                 onSvgElementDrawn(id, mRect, mFillPaint);
@@ -2183,6 +2187,7 @@ public abstract class Sharp {
                             drawElement.type = DrawElement.DrawType.OVAL;
                             drawElement.paint = mStrokePaint;
                             drawElement.element = mRect;
+                            drawElement.updateMatrix(mMatrixStack);
                             if (!onCanvasDraw(mCanvas, drawElement)) {
                                 mCanvas.drawOval(mRect, mStrokePaint);
                                 onSvgElementDrawn(id, mRect, mStrokePaint);
@@ -2217,6 +2222,8 @@ public abstract class Sharp {
                                 drawElement.type = DrawElement.DrawType.PATH;
                                 drawElement.paint = mFillPaint;
                                 drawElement.element = p;
+                                drawElement.updatePointsData(points);
+                                drawElement.updateMatrix(mMatrixStack);
                                 if (!onCanvasDraw(mCanvas, drawElement)) {
                                     mCanvas.drawPath(p, mFillPaint);
                                     onSvgElementDrawn(id, p, mFillPaint);
@@ -2231,6 +2238,8 @@ public abstract class Sharp {
                                 drawElement.type = DrawElement.DrawType.PATH;
                                 drawElement.paint = mStrokePaint;
                                 drawElement.element = p;
+                                drawElement.updatePointsData(points);
+                                drawElement.updateMatrix(mMatrixStack);
                                 if (!onCanvasDraw(mCanvas, drawElement)) {
                                     mCanvas.drawPath(p, mStrokePaint);
                                     onSvgElementDrawn(id, p, mStrokePaint);
@@ -2270,6 +2279,8 @@ public abstract class Sharp {
                         drawElement.type = DrawElement.DrawType.PATH;
                         drawElement.paint = mFillPaint;
                         drawElement.element = p;
+                        drawElement.data = d;
+                        drawElement.updateMatrix(mMatrixStack);
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawPath(p, mFillPaint);
                             onSvgElementDrawn(id, p, mFillPaint);
@@ -2284,6 +2295,8 @@ public abstract class Sharp {
                         drawElement.type = DrawElement.DrawType.PATH;
                         drawElement.paint = mStrokePaint;
                         drawElement.element = p;
+                        drawElement.data = d;
+                        drawElement.updateMatrix(mMatrixStack);
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawPath(p, mStrokePaint);
                             onSvgElementDrawn(id, p, mStrokePaint);
@@ -2552,6 +2565,7 @@ public abstract class Sharp {
                 drawElement.type = DrawElement.DrawType.TEXT;
                 drawElement.paint = paint;
                 drawElement.element = text;
+                drawElement.updateMatrix(mMatrixStack);
 
                 if (!onCanvasDraw(canvas, drawElement)) {
                     if (text != null) {
@@ -2586,7 +2600,7 @@ public abstract class Sharp {
                                 canvas.drawText(text.text.substring(i), x + text.xOffset, text.y + text.yOffset, paint);
                             }
                         } else {
-                            // Draw the entire string
+                            // Draw the entire string //绘制完整的字符串
                             canvas.drawText(text.text, text.x + text.xOffset, text.y + text.yOffset, paint);
                         }
                         onSvgElementDrawn(text.id, text, paint);
