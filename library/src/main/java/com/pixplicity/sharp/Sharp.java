@@ -2222,6 +2222,7 @@ public abstract class Sharp {
                                 drawElement.type = DrawElement.DrawType.PATH;
                                 drawElement.paint = mFillPaint;
                                 drawElement.element = p;
+                                drawElement.pathBounds = mRect;
                                 drawElement.updatePointsData(points);
                                 drawElement.updateMatrix(mMatrixStack);
                                 if (!onCanvasDraw(mCanvas, drawElement)) {
@@ -2238,6 +2239,7 @@ public abstract class Sharp {
                                 drawElement.type = DrawElement.DrawType.PATH;
                                 drawElement.paint = mStrokePaint;
                                 drawElement.element = p;
+                                drawElement.pathBounds = mRect;
                                 drawElement.updatePointsData(points);
                                 drawElement.updateMatrix(mMatrixStack);
                                 if (!onCanvasDraw(mCanvas, drawElement)) {
@@ -2280,6 +2282,7 @@ public abstract class Sharp {
                         drawElement.paint = mFillPaint;
                         drawElement.element = p;
                         drawElement.data = d;
+                        drawElement.pathBounds = mRect;
                         drawElement.updateMatrix(mMatrixStack);
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawPath(p, mFillPaint);
@@ -2296,6 +2299,7 @@ public abstract class Sharp {
                         drawElement.paint = mStrokePaint;
                         drawElement.element = p;
                         drawElement.data = d;
+                        drawElement.pathBounds = mRect;
                         drawElement.updateMatrix(mMatrixStack);
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawPath(p, mStrokePaint);
@@ -2420,22 +2424,22 @@ public abstract class Sharp {
          */
         public class SvgText {
 
-            private final static int LEFT = 0;
-            private final static int CENTER = 1;
-            private final static int RIGHT = 2;
+            public final static int LEFT = 0;
+            public final static int CENTER = 1;
+            public final static int RIGHT = 2;
 
-            private final static int BOTTOM = 0;
-            private final static int MIDDLE = 1;
-            private final static int TOP = 2;
+            public final static int BOTTOM = 0;
+            public final static int MIDDLE = 1;
+            public final static int TOP = 2;
 
-            private final String id;
-            private final float x, y;
-            private float xOffset, yOffset;
-            private final String[] xCoords;
-            private TextPaint stroke = null, fill = null;
-            private String text;
-            private int hAlign = LEFT, vAlign = BOTTOM;
-            private RectF bounds = new RectF();
+            public final String id;
+            public final float x, y;
+            public float xOffset, yOffset;
+            public final String[] xCoords;
+            public TextPaint stroke = null, fill = null;
+            public String text;
+            public int hAlign = LEFT, vAlign = BOTTOM;
+            public RectF bounds = new RectF();
 
             public SvgText(Attributes atts, SvgText parentText) {
                 id = getStringAttr("id", atts);

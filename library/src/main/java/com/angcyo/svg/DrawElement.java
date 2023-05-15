@@ -3,6 +3,7 @@ package com.angcyo.svg;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.RectF;
 
 import androidx.annotation.Nullable;
 
@@ -46,6 +47,11 @@ public class DrawElement {
      */
     @Nullable
     public String data;
+
+    /**
+     * 路径数据计算出来的bounds
+     */
+    public RectF pathBounds;
 
     /**
      * 当前元素绘制时作用的矩阵
