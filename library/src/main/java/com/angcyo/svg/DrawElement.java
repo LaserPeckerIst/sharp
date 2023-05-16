@@ -90,7 +90,7 @@ public class DrawElement {
     /**
      * 将一堆点转成svg path数据
      */
-    public void updatePointsData(ArrayList<Float> points) {
+    public void updatePointsData(ArrayList<Float> points, boolean close) {
         if (points != null) {
             int size = points.size();
             if (size > 0) {
@@ -108,7 +108,9 @@ public class DrawElement {
                     }
                     isFirst = false;
                 }
-                builder.append("Z");
+                if (close) {
+                    builder.append("Z");
+                }
                 data = builder.toString();
             }
         }

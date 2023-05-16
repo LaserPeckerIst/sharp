@@ -2299,7 +2299,8 @@ public abstract class Sharp {
                             p.lineTo(x, y);
                         }
                         // Don't close a polyline
-                        if (localName.equals("polygon")) {
+                        boolean closePath = localName.equals("polygon");
+                        if (closePath) {
                             p.close();
                         }
                         p.computeBounds(mRect, false);
@@ -2311,7 +2312,7 @@ public abstract class Sharp {
                                 drawElement.paint = mFillPaint;
                                 drawElement.element = p;
                                 drawElement.pathBounds = mRect;
-                                drawElement.updatePointsData(points);
+                                drawElement.updatePointsData(points, closePath);
                                 drawElement.updateMatrix(mMatrixStack);
                                 if (!onCanvasDraw(mCanvas, drawElement)) {
                                     mCanvas.drawPath(p, mFillPaint);
@@ -2328,7 +2329,7 @@ public abstract class Sharp {
                                 drawElement.paint = mStrokePaint;
                                 drawElement.element = p;
                                 drawElement.pathBounds = mRect;
-                                drawElement.updatePointsData(points);
+                                drawElement.updatePointsData(points, closePath);
                                 drawElement.updateMatrix(mMatrixStack);
                                 if (!onCanvasDraw(mCanvas, drawElement)) {
                                     mCanvas.drawPath(p, mStrokePaint);
