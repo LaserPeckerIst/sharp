@@ -1194,15 +1194,22 @@ public abstract class Sharp {
         StyleSet mStyles = null;
         Attributes mAttrs;
 
-        private Properties(Attributes attrs) {
+        private HashMap<String, HashMap<String, String>> mClsStyle;
+
+        private Properties(Attributes attrs, HashMap<String, HashMap<String, String>> clsStyle) {
             mAttrs = attrs;
+            mClsStyle = clsStyle;
             String styleAttr = getStringAttr("style", attrs);
             if (styleAttr != null) {
                 mStyles = new StyleSet(styleAttr);
             }
         }
 
-        public String getAttr(String name) {
+        private String getAttr(String name) {
+            return getAttr(name, false);
+        }
+
+        public String getAttr(String name, boolean isClass) {
             String v = null;
             if (mStyles != null) {
                 v = mStyles.getStyle(name);
@@ -1210,7 +1217,33 @@ public abstract class Sharp {
             if (v == null) {
                 v = getStringAttr(name, mAttrs);
             }
+            if (v == null && !isClass) {
+                String clsStr = getAttr("class", true);
+                if (clsStr == null || clsStr.isEmpty()) {
+                    //no op
+                } else {
+                    String[] clss = clsStr.split(" ");
+                    for (String cls : clss) {
+                        String style = getClassStyle(cls.trim(), name);
+                        if (style != null) {
+                            v = style;
+                        }
+                    }
+                }
+            }
             return v;
+        }
+
+        /**
+         * 获取指定类, 指定的属性对应的值
+         * [className] 不包含.的类名
+         */
+        private String getClassStyle(String className, String name) {
+            HashMap<String, String> clsMap = mClsStyle.get("." + className);
+            if (clsMap != null) {
+                return clsMap.get(name);
+            }
+            return null;
         }
 
         public String getString(String name) {
@@ -1329,7 +1362,19 @@ public abstract class Sharp {
         private final Stack<SvgGroup> mGroupStack = new Stack<>();
 
         private HashMap<String, String> mDefs = new HashMap<>();
+
+        //是否正在读取defs
         private boolean mReadingDefs = false;
+
+        //是否正在读取style
+        private boolean mReadingStyle = false;
+
+        //css class 对应的样式表
+        private HashMap<String, HashMap<String, String>> clsStyle = new HashMap<>();
+
+        //样式文本存放
+        private StringBuilder mStyleText;
+
         private Stack<String> mReadIgnoreStack = new Stack<>();
 
         //</editor-fold desc="内部属性">
@@ -1694,6 +1739,45 @@ public abstract class Sharp {
             }
         }
 
+        /**
+         * 完成样式解析
+         */
+        private void finishStyle() {
+            //CSS样式文本内容, 解析css样式表
+            String styleContent = mStyleText.toString();
+            String[] styles = styleContent.split("\\}");
+            for (String style : styles) {
+                String[] parts = style.split("\\{");
+                if (parts.length < 2) {
+                } else {
+                    String selector = parts[0].trim();
+                    String properties = parts[1].trim();
+                    // 处理样式信息
+                    String[] selectors = selector.split(",");
+                    HashMap<String, String> styleMap = parseStyle(properties);
+                    for (String cls : selectors) {
+                        String key = cls.trim();
+                        HashMap<String, String> old = clsStyle.get(key);
+                        if (old == null) {
+                            clsStyle.put(cls.trim(), styleMap);
+                        } else {
+                            old.putAll(styleMap);
+                        }
+                    }
+                }
+            }
+        }
+
+        private HashMap<String, String> parseStyle(String properties) {
+            HashMap<String, String> map = new HashMap<>();
+            String[] props = properties.split(";");
+            for (String prop : props) {
+                String[] kv = prop.split(":");
+                map.put(kv[0].trim(), kv[1].trim());
+            }
+            return map;
+        }
+
         private void doColor(Properties atts, Integer color, boolean fillMode, Paint paint) {
             int c = (0xFFFFFF & color) | 0xFF000000;
             paint.setShader(null);
@@ -1992,13 +2076,17 @@ public abstract class Sharp {
                 onSvgStart();
             } else if (localName.equals("defs")) {
                 mReadingDefs = true;
+            } else if (localName.equals("style")) {
+                //style 样式标签
+                mReadingStyle = true;
+                mStyleText = new StringBuilder();
             } else if (localName.equals("linearGradient")) {
                 mGradient = doGradient(true, atts);
             } else if (localName.equals("radialGradient")) {
                 mGradient = doGradient(false, atts);
             } else if (localName.equals("stop")) {
                 if (mGradient != null) {
-                    Properties props = new Properties(atts);
+                    Properties props = new Properties(atts, clsStyle);
                     float offset = props.getFloat("offset", 0);
                     int color = props.getColor("stop-color");
                     float alpha = props.getFloat("stop-opacity", 1);
@@ -2008,7 +2096,7 @@ public abstract class Sharp {
                     mGradient.mColors.add(color);
                 }
             } else if (localName.equals("g")) {
-                Properties props = new Properties(atts);
+                Properties props = new Properties(atts, clsStyle);
                 // Check to see if this is the "bounds" layer
                 if ("bounds".equalsIgnoreCase(id)) {
                     boundsMode = true;
@@ -2088,7 +2176,7 @@ public abstract class Sharp {
                     ry = height / 2;
                 }
                 pushTransform(atts);
-                Properties props = new Properties(atts);
+                Properties props = new Properties(atts, clsStyle);
                 mRect.set(x, y, x + width, y + height);
                 if (doFill(props, mRect)) {
                     mRect = onSvgElement(id, mRect, mRect, mFillPaint);
@@ -2130,7 +2218,7 @@ public abstract class Sharp {
                 Float x2 = getFloatAttr("x2", atts);
                 Float y1 = getFloatAttr("y1", atts);
                 Float y2 = getFloatAttr("y2", atts);
-                Properties props = new Properties(atts);
+                Properties props = new Properties(atts, clsStyle);
                 if (doStroke(props, mRect, "black")) {
                     pushTransform(atts);
                     mLine.set(x1, y1, x2, y2);
@@ -2163,7 +2251,7 @@ public abstract class Sharp {
                 }
                 if (centerX != null && centerY != null && radiusX != null && radiusY != null) {
                     pushTransform(atts);
-                    Properties props = new Properties(atts);
+                    Properties props = new Properties(atts, clsStyle);
                     mRect.set(centerX - radiusX, centerY - radiusY, centerX + radiusX, centerY + radiusY);
                     if (doFill(props, mRect)) {
                         mRect = onSvgElement(id, mRect, mRect, mFillPaint);
@@ -2203,7 +2291,7 @@ public abstract class Sharp {
                     Path p = new Path();
                     if (points.size() > 1) {
                         pushTransform(atts);
-                        Properties props = new Properties(atts);
+                        Properties props = new Properties(atts, clsStyle);
                         p.moveTo(points.get(0), points.get(1));
                         for (int i = 2; i < points.size(); i += 2) {
                             float x = points.get(i);
@@ -2272,7 +2360,7 @@ public abstract class Sharp {
                 }
                 Path p = doPath(d);
                 pushTransform(atts);
-                Properties props = new Properties(atts);
+                Properties props = new Properties(atts, clsStyle);
                 p.computeBounds(mRect, false);
                 if (doFill(props, mRect)) {
                     p = onSvgElement(id, p, mRect, mFillPaint);
@@ -2372,6 +2460,10 @@ public abstract class Sharp {
                     finishGradients();
                     mReadingDefs = false;
                     break;
+                case "style":
+                    finishStyle();
+                    mReadingStyle = false;
+                    break;
                 case "g":
                     SvgGroup group = mGroupStack.pop();
                     onSvgElementDrawn(group.id, group, null);
@@ -2406,6 +2498,9 @@ public abstract class Sharp {
         public void characters(char[] ch, int start, int length) {
             if (!mTextStack.isEmpty()) {
                 mTextStack.peek().setText(ch, start, length);
+            }
+            if (mReadingStyle) {
+                mStyleText.append(ch, start, length);
             }
         }
 
@@ -2457,7 +2552,7 @@ public abstract class Sharp {
                 y = getFloatAttr("y", atts, parentText != null ? parentText.y : 0f);
                 text = null;
 
-                Properties props = new Properties(atts);
+                Properties props = new Properties(atts, clsStyle);
                 if (doFill(props, null)) {
                     fill = new TextPaint(parentText != null && parentText.fill != null
                             ? parentText.fill
