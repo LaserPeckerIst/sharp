@@ -95,12 +95,18 @@ public class DrawElement {
             int size = points.size();
             if (size > 0) {
                 StringBuilder builder = new StringBuilder();
-                builder.append("m");
+                boolean isFirst = true;
                 for (int i = 0; i < size; i += 2) {
+                    if (isFirst) {
+                        builder.append("M");
+                    } else {
+                        builder.append("L");
+                    }
                     builder.append(points.get(i)).append(",");
                     if (i + 1 < size) {
-                        builder.append(points.get(i + 1)).append(" ");
+                        builder.append(points.get(i + 1));
                     }
+                    isFirst = false;
                 }
                 builder.append("Z");
                 data = builder.toString();
