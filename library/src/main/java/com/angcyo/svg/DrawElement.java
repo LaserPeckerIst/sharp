@@ -49,6 +49,12 @@ public class DrawElement {
     public String data;
 
     /**
+     * 数据的名称
+     */
+    @Nullable
+    public String dataName;
+
+    /**
      * 路径数据计算出来的bounds
      */
     public RectF pathBounds;

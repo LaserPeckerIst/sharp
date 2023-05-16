@@ -2187,6 +2187,7 @@ public abstract class Sharp {
                         drawElement.element = mRect;
                         drawElement.rx = rx;
                         drawElement.ry = ry;
+                        drawElement.dataName = props.getString("data-name");
                         drawElement.updateMatrix(mMatrixStack);
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawRoundRect(mRect, rx, ry, mFillPaint);
@@ -2204,6 +2205,7 @@ public abstract class Sharp {
                         drawElement.element = mRect;
                         drawElement.rx = rx;
                         drawElement.ry = ry;
+                        drawElement.dataName = props.getString("data-name");
                         drawElement.updateMatrix(mMatrixStack);
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawRoundRect(mRect, rx, ry, mStrokePaint);
@@ -2229,6 +2231,7 @@ public abstract class Sharp {
                         drawElement.type = DrawElement.DrawType.LINE;
                         drawElement.paint = mStrokePaint;
                         drawElement.element = mLine;
+                        drawElement.dataName = props.getString("data-name");
                         drawElement.updateMatrix(mMatrixStack);
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawLine(mLine.left, mLine.top, mLine.right, mLine.bottom, mStrokePaint);
@@ -2260,6 +2263,7 @@ public abstract class Sharp {
                             drawElement.type = DrawElement.DrawType.OVAL;
                             drawElement.paint = mFillPaint;
                             drawElement.element = mRect;
+                            drawElement.dataName = props.getString("data-name");
                             drawElement.updateMatrix(mMatrixStack);
                             if (!onCanvasDraw(mCanvas, drawElement)) {
                                 mCanvas.drawOval(mRect, mFillPaint);
@@ -2275,6 +2279,7 @@ public abstract class Sharp {
                             drawElement.type = DrawElement.DrawType.OVAL;
                             drawElement.paint = mStrokePaint;
                             drawElement.element = mRect;
+                            drawElement.dataName = props.getString("data-name");
                             drawElement.updateMatrix(mMatrixStack);
                             if (!onCanvasDraw(mCanvas, drawElement)) {
                                 mCanvas.drawOval(mRect, mStrokePaint);
@@ -2312,6 +2317,7 @@ public abstract class Sharp {
                                 drawElement.paint = mFillPaint;
                                 drawElement.element = p;
                                 drawElement.pathBounds = mRect;
+                                drawElement.dataName = props.getString("data-name");
                                 drawElement.updatePointsData(points, closePath);
                                 drawElement.updateMatrix(mMatrixStack);
                                 if (!onCanvasDraw(mCanvas, drawElement)) {
@@ -2329,6 +2335,7 @@ public abstract class Sharp {
                                 drawElement.paint = mStrokePaint;
                                 drawElement.element = p;
                                 drawElement.pathBounds = mRect;
+                                drawElement.dataName = props.getString("data-name");
                                 drawElement.updatePointsData(points, closePath);
                                 drawElement.updateMatrix(mMatrixStack);
                                 if (!onCanvasDraw(mCanvas, drawElement)) {
@@ -2372,6 +2379,7 @@ public abstract class Sharp {
                         drawElement.element = p;
                         drawElement.data = d;
                         drawElement.pathBounds = mRect;
+                        drawElement.dataName = props.getString("data-name");
                         drawElement.updateMatrix(mMatrixStack);
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawPath(p, mFillPaint);
@@ -2389,6 +2397,7 @@ public abstract class Sharp {
                         drawElement.element = p;
                         drawElement.data = d;
                         drawElement.pathBounds = mRect;
+                        drawElement.dataName = props.getString("data-name");
                         drawElement.updateMatrix(mMatrixStack);
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawPath(p, mStrokePaint);
@@ -2536,9 +2545,11 @@ public abstract class Sharp {
             public String text;
             public int hAlign = LEFT, vAlign = BOTTOM;
             public RectF bounds = new RectF();
+            public String dataName;
 
             public SvgText(Attributes atts, SvgText parentText) {
                 id = getStringAttr("id", atts);
+                dataName = getStringAttr("data-name", atts);
                 String xStr = getStringAttr("x", atts);
                 if (xStr != null && (xStr.contains(",") || xStr.contains(" "))) {
                     // x is a comma- or space-separated list of coordinates; see:
@@ -2665,6 +2676,8 @@ public abstract class Sharp {
                 drawElement.type = DrawElement.DrawType.TEXT;
                 drawElement.paint = paint;
                 drawElement.element = text;
+                drawElement.dataName = text.dataName;
+
                 drawElement.updateMatrix(mMatrixStack);
 
                 if (!onCanvasDraw(canvas, drawElement)) {
