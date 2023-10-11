@@ -2182,6 +2182,7 @@ public abstract class Sharp {
                     mRect = onSvgElement(id, mRect, mRect, mFillPaint);
                     if (mRect != null) {
                         DrawElement drawElement = new DrawElement();
+                        drawElement.readingDefs = mReadingDefs;
                         drawElement.type = DrawElement.DrawType.ROUND_RECT;
                         drawElement.paint = mFillPaint;
                         drawElement.element = mRect;
@@ -2200,6 +2201,7 @@ public abstract class Sharp {
                     mRect = onSvgElement(id, mRect, mRect, mStrokePaint);
                     if (mRect != null) {
                         DrawElement drawElement = new DrawElement();
+                        drawElement.readingDefs = mReadingDefs;
                         drawElement.type = DrawElement.DrawType.ROUND_RECT;
                         drawElement.paint = mStrokePaint;
                         drawElement.element = mRect;
@@ -2228,6 +2230,7 @@ public abstract class Sharp {
                     mLine = onSvgElement(id, mLine, mRect, mStrokePaint);
                     if (mLine != null) {
                         DrawElement drawElement = new DrawElement();
+                        drawElement.readingDefs = mReadingDefs;
                         drawElement.type = DrawElement.DrawType.LINE;
                         drawElement.paint = mStrokePaint;
                         drawElement.element = mLine;
@@ -2260,6 +2263,7 @@ public abstract class Sharp {
                         mRect = onSvgElement(id, mRect, mRect, mFillPaint);
                         if (mRect != null) {
                             DrawElement drawElement = new DrawElement();
+                            drawElement.readingDefs = mReadingDefs;
                             drawElement.type = DrawElement.DrawType.OVAL;
                             drawElement.paint = mFillPaint;
                             drawElement.element = mRect;
@@ -2276,6 +2280,7 @@ public abstract class Sharp {
                         mRect = onSvgElement(id, mRect, mRect, mStrokePaint);
                         if (mRect != null) {
                             DrawElement drawElement = new DrawElement();
+                            drawElement.readingDefs = mReadingDefs;
                             drawElement.type = DrawElement.DrawType.OVAL;
                             drawElement.paint = mStrokePaint;
                             drawElement.element = mRect;
@@ -2313,6 +2318,7 @@ public abstract class Sharp {
                             p = onSvgElement(id, p, mRect, mFillPaint);
                             if (p != null) {
                                 DrawElement drawElement = new DrawElement();
+                                drawElement.readingDefs = mReadingDefs;
                                 drawElement.type = DrawElement.DrawType.PATH;
                                 drawElement.paint = mFillPaint;
                                 drawElement.element = p;
@@ -2331,6 +2337,7 @@ public abstract class Sharp {
                             p = onSvgElement(id, p, mRect, mStrokePaint);
                             if (p != null) {
                                 DrawElement drawElement = new DrawElement();
+                                drawElement.readingDefs = mReadingDefs;
                                 drawElement.type = DrawElement.DrawType.PATH;
                                 drawElement.paint = mStrokePaint;
                                 drawElement.element = p;
@@ -2374,6 +2381,7 @@ public abstract class Sharp {
                     p = onSvgElement(id, p, mRect, mFillPaint);
                     if (p != null) {
                         DrawElement drawElement = new DrawElement();
+                        drawElement.readingDefs = mReadingDefs;
                         drawElement.type = DrawElement.DrawType.PATH;
                         drawElement.paint = mFillPaint;
                         drawElement.element = p;
@@ -2392,6 +2400,7 @@ public abstract class Sharp {
                     p = onSvgElement(id, p, mRect, mStrokePaint);
                     if (p != null) {
                         DrawElement drawElement = new DrawElement();
+                        drawElement.readingDefs = mReadingDefs;
                         drawElement.type = DrawElement.DrawType.PATH;
                         drawElement.paint = mStrokePaint;
                         drawElement.element = p;
@@ -2673,6 +2682,7 @@ public abstract class Sharp {
                 text = onSvgElement(id, text, text.bounds, paint);
 
                 DrawElement drawElement = new DrawElement();
+                drawElement.readingDefs = mReadingDefs;
                 drawElement.type = DrawElement.DrawType.TEXT;
                 drawElement.paint = paint;
                 drawElement.element = text;

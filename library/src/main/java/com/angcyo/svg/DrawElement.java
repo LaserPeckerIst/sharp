@@ -19,6 +19,11 @@ import java.util.Stack;
 public class DrawElement {
 
     /**
+     * 是否在`<defs>`标签内
+     */
+    public Boolean readingDefs;
+
+    /**
      * 绘制使用的笔
      */
     public Paint paint;

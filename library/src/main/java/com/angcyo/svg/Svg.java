@@ -3,6 +3,7 @@ package com.angcyo.svg;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -25,6 +26,22 @@ import java.util.List;
  * @since 2022/06/13
  */
 public class Svg {
+
+    /**
+     * [path] 转成 [bitmap] 对象
+     */
+    public static Bitmap pathToBitmap(Path path, Paint.Style drawStyle) {
+        RectF pathRect = new RectF();
+        path.computeBounds(pathRect, true);
+        Bitmap bitmap = Bitmap.createBitmap((int) Math.ceil(pathRect.width()), (int) Math.ceil(pathRect.height()), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        canvas.translate(-pathRect.left, -pathRect.top);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setStrokeWidth(3f);
+        paint.setStyle(drawStyle);
+        canvas.drawPath(path, paint);
+        return bitmap;
+    }
 
     /**
      * 图片转SVG
@@ -77,6 +94,9 @@ public class Svg {
         sharp.setOnElementListener(new SvgElementListener() {
             @Override
             public boolean onCanvasDraw(Canvas canvas, DrawElement drawElement) {
+                if (drawElement == null || drawElement.element == null || drawElement.readingDefs) {
+                    return false;
+                }
                 //拦截
                 StylePath path = null;
                 if (drawElement.type == DrawElement.DrawType.PATH) {
