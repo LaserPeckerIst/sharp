@@ -2183,6 +2183,7 @@ public abstract class Sharp {
                     if (mRect != null) {
                         DrawElement drawElement = new DrawElement();
                         drawElement.svgRect = mBounds;
+                        drawElement.canvasMatrix = mCanvas.getMatrix();
                         drawElement.readingDefs = mReadingDefs;
                         drawElement.type = DrawElement.DrawType.ROUND_RECT;
                         drawElement.paint = mFillPaint;
@@ -2203,6 +2204,7 @@ public abstract class Sharp {
                     if (mRect != null) {
                         DrawElement drawElement = new DrawElement();
                         drawElement.svgRect = mBounds;
+                        drawElement.canvasMatrix = mCanvas.getMatrix();
                         drawElement.readingDefs = mReadingDefs;
                         drawElement.type = DrawElement.DrawType.ROUND_RECT;
                         drawElement.paint = mStrokePaint;
@@ -2233,6 +2235,7 @@ public abstract class Sharp {
                     if (mLine != null) {
                         DrawElement drawElement = new DrawElement();
                         drawElement.svgRect = mBounds;
+                        drawElement.canvasMatrix = mCanvas.getMatrix();
                         drawElement.readingDefs = mReadingDefs;
                         drawElement.type = DrawElement.DrawType.LINE;
                         drawElement.paint = mStrokePaint;
@@ -2267,6 +2270,7 @@ public abstract class Sharp {
                         if (mRect != null) {
                             DrawElement drawElement = new DrawElement();
                             drawElement.svgRect = mBounds;
+                            drawElement.canvasMatrix = mCanvas.getMatrix();
                             drawElement.readingDefs = mReadingDefs;
                             drawElement.type = DrawElement.DrawType.OVAL;
                             drawElement.paint = mFillPaint;
@@ -2285,6 +2289,7 @@ public abstract class Sharp {
                         if (mRect != null) {
                             DrawElement drawElement = new DrawElement();
                             drawElement.svgRect = mBounds;
+                            drawElement.canvasMatrix = mCanvas.getMatrix();
                             drawElement.readingDefs = mReadingDefs;
                             drawElement.type = DrawElement.DrawType.OVAL;
                             drawElement.paint = mStrokePaint;
@@ -2324,6 +2329,7 @@ public abstract class Sharp {
                             if (p != null) {
                                 DrawElement drawElement = new DrawElement();
                                 drawElement.svgRect = mBounds;
+                                drawElement.canvasMatrix = mCanvas.getMatrix();
                                 drawElement.readingDefs = mReadingDefs;
                                 drawElement.type = DrawElement.DrawType.PATH;
                                 drawElement.paint = mFillPaint;
@@ -2344,6 +2350,7 @@ public abstract class Sharp {
                             if (p != null) {
                                 DrawElement drawElement = new DrawElement();
                                 drawElement.svgRect = mBounds;
+                                drawElement.canvasMatrix = mCanvas.getMatrix();
                                 drawElement.readingDefs = mReadingDefs;
                                 drawElement.type = DrawElement.DrawType.PATH;
                                 drawElement.paint = mStrokePaint;
@@ -2389,6 +2396,7 @@ public abstract class Sharp {
                     if (p != null) {
                         DrawElement drawElement = new DrawElement();
                         drawElement.svgRect = mBounds;
+                        drawElement.canvasMatrix = mCanvas.getMatrix();
                         drawElement.readingDefs = mReadingDefs;
                         drawElement.type = DrawElement.DrawType.PATH;
                         drawElement.paint = mFillPaint;
@@ -2409,6 +2417,7 @@ public abstract class Sharp {
                     if (p != null) {
                         DrawElement drawElement = new DrawElement();
                         drawElement.svgRect = mBounds;
+                        drawElement.canvasMatrix = mCanvas.getMatrix();
                         drawElement.readingDefs = mReadingDefs;
                         drawElement.type = DrawElement.DrawType.PATH;
                         drawElement.paint = mStrokePaint;
@@ -2692,6 +2701,7 @@ public abstract class Sharp {
 
                 DrawElement drawElement = new DrawElement();
                 drawElement.svgRect = mBounds;
+                drawElement.canvasMatrix = mCanvas.getMatrix();
                 drawElement.readingDefs = mReadingDefs;
                 drawElement.type = DrawElement.DrawType.TEXT;
                 drawElement.paint = paint;

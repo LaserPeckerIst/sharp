@@ -5,6 +5,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -74,6 +75,12 @@ public class DrawElement {
      */
     @Nullable
     public Matrix matrix;
+
+    /**
+     * 当前元素绘制时Canvas的矩阵
+     */
+    @NonNull
+    public Matrix canvasMatrix;
 
     public enum DrawType {
         //drawRoundRect
