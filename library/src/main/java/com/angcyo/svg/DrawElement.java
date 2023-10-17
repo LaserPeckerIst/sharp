@@ -19,6 +19,11 @@ import java.util.Stack;
 public class DrawElement {
 
     /**
+     * svg标签中的width/height对应的值
+     */
+    public RectF svgRect;
+
+    /**
      * 是否在`<defs>`标签内
      */
     public Boolean readingDefs;
