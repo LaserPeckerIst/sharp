@@ -50,6 +50,8 @@ import com.pixplicity.sharp.Sharp;
 import com.pixplicity.sharp.SharpDrawable;
 import com.pixplicity.sharp.SharpPicture;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.Random;
 
 public class SvgDemoActivity extends AppCompatActivity {
@@ -78,7 +80,11 @@ public class SvgDemoActivity extends AppCompatActivity {
 
         Sharp.setLogLevel(Sharp.LOG_LEVEL_INFO);
 
-        mSvg = Sharp.loadResource(getResources(), R.raw.cartman2);
+        //mSvg = Sharp.loadResource(getResources(), R.raw.cartman2);
+        //mSvg = Sharp.loadResource(getResources(), R.raw.t125);
+        //mSvg = Sharp.loadResource(getResources(), R.raw.test2);
+        mSvg = Sharp.loadResource(getResources(), R.raw.test3);
+//        mSvg = Sharp.loadResource(getResources(), R.raw.s_50);
         // If you want to load typefaces from assets:
         //          .withAssets(getAssets());
 
@@ -92,8 +98,10 @@ public class SvgDemoActivity extends AppCompatActivity {
             }
         });
 
-        reloadSvg(false);
+        //reloadSvg(false);
+        testLoadSvgPath();
 
+        /*
         //1.
         svgPathImage.setImageDrawable(Svg.loadSvgPathDrawable(Sharp.loadResource(getResources(), R.raw.cartman2),
                 Color.WHITE, Paint.Style.STROKE,
@@ -107,7 +115,29 @@ public class SvgDemoActivity extends AppCompatActivity {
         paint.setColor(Color.RED);
         testImage.setImageDrawable(Svg.loadSvgPathDrawable(Sharp.loadAsset(getAssets(), "test.svg"),
                 Color.WHITE, Paint.Style.STROKE,
-                paint, (int) (60 * dp), (int) (60 * dp)));
+                paint, (int) (60 * dp), (int) (60 * dp)));*/
+    }
+
+    private void testLoadSvgPath() {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        InputStream inputStream = getResources().openRawResource(R.raw.test3);
+        byte[] buffer = new byte[1024];
+        int len;
+        try {
+            while ((len = inputStream.read(buffer)) != -1) {
+                byteArrayOutputStream.write(buffer, 0, len);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String svgText = new String(byteArrayOutputStream.toByteArray());
+
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(1);
+        paint.setColor(Color.BLACK);
+        Drawable drawable = Svg.loadSvgPathDrawable(svgText, -1, null, paint, 0, 0);
+        mImageView.setImageDrawable(drawable);
     }
 
     @Override
