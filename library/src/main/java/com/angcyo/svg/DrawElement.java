@@ -93,6 +93,8 @@ public class DrawElement {
         PATH,
         //drawText
         TEXT,
+        //drawBitmap
+        IMAGE,
     }
 
     public StylePath createCustomPath(int color) {

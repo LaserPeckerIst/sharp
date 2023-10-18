@@ -27,6 +27,8 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
@@ -46,6 +48,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Looper;
 import android.text.TextPaint;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -2432,6 +2435,59 @@ public abstract class Sharp {
                         }
                     }
                     doLimits(mRect, mStrokePaint);
+                }
+                popTransform();
+            } else if (!hidden && localName.equals("image")) {
+                //解析svg标签中的image标签
+                Properties props = new Properties(atts, clsStyle);
+
+
+                if (!"none".equals(props.getString("display"))) {
+                    pushTransform(atts);
+                    Float width = getFloatAttr("width", atts);
+                    Float height = getFloatAttr("height", atts);
+                    String href = getStringAttr("href", atts);
+                    
+                    if (href != null && href.startsWith("#")) {
+                        href = href.substring(1);
+                    }
+                    if (href != null && mDefs.containsKey(href)) {
+                        href = mDefs.get(href);
+                    }
+                    //如果href是base64图片数据格式
+                    if (href != null && href.startsWith("data:image/")) {
+                        //data:image/png;base64,iVBORw0KGgoAAAAN
+                        int index = href.indexOf("base64,");
+                        if (index > 0) {
+                            href = href.substring(index + 7);
+                        }
+                        byte[] bytes = Base64.decode(href, Base64.DEFAULT);
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                        if (bitmap != null) {
+                            if (width == null) {
+                                width = (float) bitmap.getWidth();
+                            }
+                            if (height == null) {
+                                height = (float) bitmap.getHeight();
+                            }
+                            mRect.set(0, 0, width, height);
+                            DrawElement drawElement = new DrawElement();
+                            drawElement.svgRect = mBounds;
+                            drawElement.canvasMatrix = mCanvas.getMatrix();
+                            drawElement.readingDefs = mReadingDefs;
+                            drawElement.type = DrawElement.DrawType.IMAGE;
+                            drawElement.paint = mStrokePaint;
+                            drawElement.element = bitmap;
+                            drawElement.dataName = props.getString("data-name");
+                            drawElement.updateMatrix(mMatrixStack);
+
+                            if (!onCanvasDraw(mCanvas, drawElement)) {
+                                mCanvas.drawBitmap(bitmap, null, mRect, mStrokePaint);
+                                onSvgElementDrawn(id, bitmap, mStrokePaint);
+                            }
+                        }
+                    }
                 }
                 popTransform();
             } else if (!hidden && localName.equals("text")) {
