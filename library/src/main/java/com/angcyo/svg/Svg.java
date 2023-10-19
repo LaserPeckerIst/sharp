@@ -102,8 +102,12 @@ public class Svg {
                 if (drawElement.type == DrawElement.DrawType.PATH) {
                     path = drawElement.createCustomPath(color);
                     path.addPath((Path) drawElement.element);
-                } else if (drawElement.type != DrawElement.DrawType.TEXT) {
-                    RectF rect = (RectF) drawElement.element;
+                } else if (drawElement.type != DrawElement.DrawType.TEXT &&
+                        drawElement.type != DrawElement.DrawType.IMAGE) {
+                    RectF rect = null;
+                    if (drawElement.element instanceof RectF) {
+                        rect = (RectF) drawElement.element;
+                    }
                     switch (drawElement.type) {
                         case LINE:
                             path = drawElement.createCustomPath(color);
