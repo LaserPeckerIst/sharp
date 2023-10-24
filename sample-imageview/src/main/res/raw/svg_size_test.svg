@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_图层_2" data-name="图层 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 284.16 283.87">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #d3370c;
+        stroke-miterlimit: 22.93;
+        stroke-width: .27px;
+      }
+    </style>
+  </defs>
+  <g id="_图层_2-2" data-name=" 图层 2">
+    <circle class="cls-1" cx="25.22" cy="25.34" r="25.08"/>
+    <polygon class="cls-1" points="232.82 3.15 252.02 11.4 269.71 .26 267.8 21.08 283.86 34.46 263.47 39.07 255.71 58.48 245.02 40.51 224.16 39.13 237.95 23.41 232.82 3.15"/>
+    <rect class="cls-1" x="16.38" y="210.48" width="53.96" height="79.82" rx="7.99" ry="7.99" transform="translate(-210.53 239.51) rotate(-77.72)"/>
+    <polygon class="cls-1" points="244.06 206.48 189.51 233.91 174.75 272.53 214.55 283.72 269.11 256.29 283.86 217.67 244.06 206.48"/>
+    <ellipse class="cls-1" cx="137.71" cy="139.37" rx="40.15" ry="18.37"/>
+    <rect class="cls-1" x=".14" y=".26" width="283.46" height="283.46"/>
+  </g>
+</svg>

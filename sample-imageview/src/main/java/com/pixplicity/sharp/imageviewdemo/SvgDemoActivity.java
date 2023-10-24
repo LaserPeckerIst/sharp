@@ -31,6 +31,7 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -65,6 +66,9 @@ public class SvgDemoActivity extends AppCompatActivity {
 
     private boolean mRenderBitmap = false;
 
+    //private int testRawResId = R.raw.svg_size_test;
+    private int testRawResId = R.raw.svg_line_test;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,7 +87,7 @@ public class SvgDemoActivity extends AppCompatActivity {
         //mSvg = Sharp.loadResource(getResources(), R.raw.cartman2);
         //mSvg = Sharp.loadResource(getResources(), R.raw.t125);
         //mSvg = Sharp.loadResource(getResources(), R.raw.test2);
-        mSvg = Sharp.loadResource(getResources(), R.raw.test3);
+        mSvg = Sharp.loadResource(getResources(), testRawResId);
 //        mSvg = Sharp.loadResource(getResources(), R.raw.s_50);
         // If you want to load typefaces from assets:
         //          .withAssets(getAssets());
@@ -98,8 +102,8 @@ public class SvgDemoActivity extends AppCompatActivity {
             }
         });
 
-        //reloadSvg(false);
-        testLoadSvgPath();
+        reloadSvg(false);
+//        testLoadSvgPath();
 
         /*
         //1.
@@ -120,7 +124,7 @@ public class SvgDemoActivity extends AppCompatActivity {
 
     private void testLoadSvgPath() {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        InputStream inputStream = getResources().openRawResource(R.raw.test3);
+        InputStream inputStream = getResources().openRawResource(testRawResId);
         byte[] buffer = new byte[1024];
         int len;
         try {
@@ -137,6 +141,7 @@ public class SvgDemoActivity extends AppCompatActivity {
         paint.setStrokeWidth(1);
         paint.setColor(Color.BLACK);
         Drawable drawable = Svg.loadSvgPathDrawable(svgText, -1, null, paint, 0, 0);
+        Log.w("angcyo", "width:" + drawable.getMinimumWidth() + " height:" + drawable.getMinimumHeight());
         mImageView.setImageDrawable(drawable);
     }
 
@@ -200,6 +205,7 @@ public class SvgDemoActivity extends AppCompatActivity {
                 } else {
                     SharpDrawable.prepareView(mImageView);
                 }
+                Log.w("angcyo", "width:" + drawable.getMinimumWidth() + " height:" + drawable.getMinimumHeight());
                 mImageView.setImageDrawable(drawable);
 
                 // We don't want to use the same drawable, as we're specifying a custom size; therefore
