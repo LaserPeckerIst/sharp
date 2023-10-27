@@ -48,6 +48,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Looper;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -2378,7 +2379,7 @@ public abstract class Sharp {
                 if (mReadingDefs) {
                     mDefs.put(id, getStringAttr("d", atts));
                     return;
-                } else if (null == d) {
+                } else if (TextUtils.isEmpty(d)) {
                     String href = getStringAttr("href", atts);
                     if (href != null && href.startsWith("#")) {
                         href = href.substring(1);
@@ -2386,7 +2387,7 @@ public abstract class Sharp {
                     if (href != null && mDefs.containsKey(href)) {
                         d = mDefs.get(href);
                     }
-                    if (null == d) {
+                    if (TextUtils.isEmpty(d)) {
                         return;
                     }
                 }
@@ -2447,7 +2448,7 @@ public abstract class Sharp {
                     Float width = getFloatAttr("width", atts);
                     Float height = getFloatAttr("height", atts);
                     String href = getStringAttr("href", atts);
-                    
+
                     if (href != null && href.startsWith("#")) {
                         href = href.substring(1);
                     }
