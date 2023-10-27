@@ -1354,6 +1354,9 @@ public abstract class Sharp {
         private RectF mLine = new RectF();
         private RectF mRect = new RectF();
         private RectF mBounds = null;
+        private String viewBoxStr;
+        private String widthStr;
+        private String heightStr;
         private RectF mLimits = new RectF(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY);
 
         private Stack<Boolean> mTransformStack = new Stack<>();
@@ -2005,6 +2008,19 @@ public abstract class Sharp {
             mMatrixStack.clear();
         }
 
+        private DrawElement createDrawElement(DrawElement.DrawType type) {
+            DrawElement drawElement = new DrawElement();
+            drawElement.type = type;
+            drawElement.svgRect = mBounds;
+            drawElement.viewBoxStr = viewBoxStr;
+            drawElement.widthStr = widthStr;
+            drawElement.heightStr = heightStr;
+            drawElement.canvasMatrix = mCanvas.getMatrix();
+            drawElement.readingDefs = mReadingDefs;
+            drawElement.updateMatrix(mMatrixStack);
+            return drawElement;
+        }
+
         /**
          * 接收元素开始的通知
          * [localName] 不带前缀的元素名字
@@ -2045,10 +2061,12 @@ public abstract class Sharp {
 
             if (localName.equals("svg")) {
                 float x = 0, y = 0, width = -1, height = -1;
-                String viewBox = getStringAttr("viewBox", atts);
-                if (viewBox != null) {
+                viewBoxStr = getStringAttr("viewBox", atts);
+                widthStr = getStringAttr("width", atts);
+                heightStr = getStringAttr("height", atts);
+                if (viewBoxStr != null) {
                     // Prefer viewBox
-                    String[] coords = viewBox.split(" ");
+                    String[] coords = viewBoxStr.split(" ");
                     if (coords.length == 4) {
                         x = parseFloat(coords[0], 0f);
                         y = parseFloat(coords[1], 0f);
@@ -2185,17 +2203,12 @@ public abstract class Sharp {
                 if (doFill(props, mRect)) {
                     mRect = onSvgElement(id, mRect, mRect, mFillPaint);
                     if (mRect != null) {
-                        DrawElement drawElement = new DrawElement();
-                        drawElement.svgRect = mBounds;
-                        drawElement.canvasMatrix = mCanvas.getMatrix();
-                        drawElement.readingDefs = mReadingDefs;
-                        drawElement.type = DrawElement.DrawType.ROUND_RECT;
+                        DrawElement drawElement = createDrawElement(DrawElement.DrawType.ROUND_RECT);
                         drawElement.paint = mFillPaint;
                         drawElement.element = mRect;
                         drawElement.rx = rx;
                         drawElement.ry = ry;
                         drawElement.dataName = props.getString("data-name");
-                        drawElement.updateMatrix(mMatrixStack);
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawRoundRect(mRect, rx, ry, mFillPaint);
                             onSvgElementDrawn(id, mRect, mFillPaint);
@@ -2206,17 +2219,12 @@ public abstract class Sharp {
                 if (doStroke(props, mRect)) {
                     mRect = onSvgElement(id, mRect, mRect, mStrokePaint);
                     if (mRect != null) {
-                        DrawElement drawElement = new DrawElement();
-                        drawElement.svgRect = mBounds;
-                        drawElement.canvasMatrix = mCanvas.getMatrix();
-                        drawElement.readingDefs = mReadingDefs;
-                        drawElement.type = DrawElement.DrawType.ROUND_RECT;
+                        DrawElement drawElement = createDrawElement(DrawElement.DrawType.ROUND_RECT);
                         drawElement.paint = mStrokePaint;
                         drawElement.element = mRect;
                         drawElement.rx = rx;
                         drawElement.ry = ry;
                         drawElement.dataName = props.getString("data-name");
-                        drawElement.updateMatrix(mMatrixStack);
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawRoundRect(mRect, rx, ry, mStrokePaint);
                             onSvgElementDrawn(id, mRect, mStrokePaint);
@@ -2237,15 +2245,10 @@ public abstract class Sharp {
                     mRect.set(mLine);
                     mLine = onSvgElement(id, mLine, mRect, mStrokePaint);
                     if (mLine != null) {
-                        DrawElement drawElement = new DrawElement();
-                        drawElement.svgRect = mBounds;
-                        drawElement.canvasMatrix = mCanvas.getMatrix();
-                        drawElement.readingDefs = mReadingDefs;
-                        drawElement.type = DrawElement.DrawType.LINE;
+                        DrawElement drawElement = createDrawElement(DrawElement.DrawType.LINE);
                         drawElement.paint = mStrokePaint;
                         drawElement.element = mLine;
                         drawElement.dataName = props.getString("data-name");
-                        drawElement.updateMatrix(mMatrixStack);
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawLine(mLine.left, mLine.top, mLine.right, mLine.bottom, mStrokePaint);
                             onSvgElementDrawn(id, mLine, mStrokePaint);
@@ -2272,15 +2275,10 @@ public abstract class Sharp {
                     if (doFill(props, mRect)) {
                         mRect = onSvgElement(id, mRect, mRect, mFillPaint);
                         if (mRect != null) {
-                            DrawElement drawElement = new DrawElement();
-                            drawElement.svgRect = mBounds;
-                            drawElement.canvasMatrix = mCanvas.getMatrix();
-                            drawElement.readingDefs = mReadingDefs;
-                            drawElement.type = DrawElement.DrawType.OVAL;
+                            DrawElement drawElement = createDrawElement(DrawElement.DrawType.OVAL);
                             drawElement.paint = mFillPaint;
                             drawElement.element = mRect;
                             drawElement.dataName = props.getString("data-name");
-                            drawElement.updateMatrix(mMatrixStack);
                             if (!onCanvasDraw(mCanvas, drawElement)) {
                                 mCanvas.drawOval(mRect, mFillPaint);
                                 onSvgElementDrawn(id, mRect, mFillPaint);
@@ -2291,15 +2289,10 @@ public abstract class Sharp {
                     if (doStroke(props, mRect)) {
                         mRect = onSvgElement(id, mRect, mRect, mStrokePaint);
                         if (mRect != null) {
-                            DrawElement drawElement = new DrawElement();
-                            drawElement.svgRect = mBounds;
-                            drawElement.canvasMatrix = mCanvas.getMatrix();
-                            drawElement.readingDefs = mReadingDefs;
-                            drawElement.type = DrawElement.DrawType.OVAL;
+                            DrawElement drawElement = createDrawElement(DrawElement.DrawType.OVAL);
                             drawElement.paint = mStrokePaint;
                             drawElement.element = mRect;
                             drawElement.dataName = props.getString("data-name");
-                            drawElement.updateMatrix(mMatrixStack);
                             if (!onCanvasDraw(mCanvas, drawElement)) {
                                 mCanvas.drawOval(mRect, mStrokePaint);
                                 onSvgElementDrawn(id, mRect, mStrokePaint);
@@ -2331,17 +2324,12 @@ public abstract class Sharp {
                         if (doFill(props, mRect)) {
                             p = onSvgElement(id, p, mRect, mFillPaint);
                             if (p != null) {
-                                DrawElement drawElement = new DrawElement();
-                                drawElement.svgRect = mBounds;
-                                drawElement.canvasMatrix = mCanvas.getMatrix();
-                                drawElement.readingDefs = mReadingDefs;
-                                drawElement.type = DrawElement.DrawType.PATH;
+                                DrawElement drawElement = createDrawElement(DrawElement.DrawType.PATH);
                                 drawElement.paint = mFillPaint;
                                 drawElement.element = p;
                                 drawElement.pathBounds = mRect;
                                 drawElement.dataName = props.getString("data-name");
                                 drawElement.updatePointsData(points, closePath);
-                                drawElement.updateMatrix(mMatrixStack);
                                 if (!onCanvasDraw(mCanvas, drawElement)) {
                                     mCanvas.drawPath(p, mFillPaint);
                                     onSvgElementDrawn(id, p, mFillPaint);
@@ -2352,17 +2340,12 @@ public abstract class Sharp {
                         if (doStroke(props, mRect)) {
                             p = onSvgElement(id, p, mRect, mStrokePaint);
                             if (p != null) {
-                                DrawElement drawElement = new DrawElement();
-                                drawElement.svgRect = mBounds;
-                                drawElement.canvasMatrix = mCanvas.getMatrix();
-                                drawElement.readingDefs = mReadingDefs;
-                                drawElement.type = DrawElement.DrawType.PATH;
+                                DrawElement drawElement = createDrawElement(DrawElement.DrawType.PATH);
                                 drawElement.paint = mStrokePaint;
                                 drawElement.element = p;
                                 drawElement.pathBounds = mRect;
                                 drawElement.dataName = props.getString("data-name");
                                 drawElement.updatePointsData(points, closePath);
-                                drawElement.updateMatrix(mMatrixStack);
                                 if (!onCanvasDraw(mCanvas, drawElement)) {
                                     mCanvas.drawPath(p, mStrokePaint);
                                     onSvgElementDrawn(id, p, mStrokePaint);
@@ -2398,17 +2381,12 @@ public abstract class Sharp {
                 if (doFill(props, mRect)) {
                     p = onSvgElement(id, p, mRect, mFillPaint);
                     if (p != null) {
-                        DrawElement drawElement = new DrawElement();
-                        drawElement.svgRect = mBounds;
-                        drawElement.canvasMatrix = mCanvas.getMatrix();
-                        drawElement.readingDefs = mReadingDefs;
-                        drawElement.type = DrawElement.DrawType.PATH;
+                        DrawElement drawElement = createDrawElement(DrawElement.DrawType.PATH);
                         drawElement.paint = mFillPaint;
                         drawElement.element = p;
                         drawElement.data = d;
                         drawElement.pathBounds = mRect;
                         drawElement.dataName = props.getString("data-name");
-                        drawElement.updateMatrix(mMatrixStack);
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawPath(p, mFillPaint);
                             onSvgElementDrawn(id, p, mFillPaint);
@@ -2419,17 +2397,12 @@ public abstract class Sharp {
                 if (doStroke(props, mRect)) {
                     p = onSvgElement(id, p, mRect, mStrokePaint);
                     if (p != null) {
-                        DrawElement drawElement = new DrawElement();
-                        drawElement.svgRect = mBounds;
-                        drawElement.canvasMatrix = mCanvas.getMatrix();
-                        drawElement.readingDefs = mReadingDefs;
-                        drawElement.type = DrawElement.DrawType.PATH;
+                        DrawElement drawElement = createDrawElement(DrawElement.DrawType.PATH);
                         drawElement.paint = mStrokePaint;
                         drawElement.element = p;
                         drawElement.data = d;
                         drawElement.pathBounds = mRect;
                         drawElement.dataName = props.getString("data-name");
-                        drawElement.updateMatrix(mMatrixStack);
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawPath(p, mStrokePaint);
                             onSvgElementDrawn(id, p, mStrokePaint);
@@ -2473,15 +2446,10 @@ public abstract class Sharp {
                                 height = (float) bitmap.getHeight();
                             }
                             mRect.set(0, 0, width, height);
-                            DrawElement drawElement = new DrawElement();
-                            drawElement.svgRect = mBounds;
-                            drawElement.canvasMatrix = mCanvas.getMatrix();
-                            drawElement.readingDefs = mReadingDefs;
-                            drawElement.type = DrawElement.DrawType.IMAGE;
+                            DrawElement drawElement = createDrawElement(DrawElement.DrawType.IMAGE);
                             drawElement.paint = mStrokePaint;
                             drawElement.element = bitmap;
                             drawElement.dataName = props.getString("data-name");
-                            drawElement.updateMatrix(mMatrixStack);
 
                             if (!onCanvasDraw(mCanvas, drawElement)) {
                                 mCanvas.drawBitmap(bitmap, null, mRect, mStrokePaint);
@@ -2756,16 +2724,10 @@ public abstract class Sharp {
                 TextPaint paint = fill ? text.fill : text.stroke;
                 text = onSvgElement(id, text, text.bounds, paint);
 
-                DrawElement drawElement = new DrawElement();
-                drawElement.svgRect = mBounds;
-                drawElement.canvasMatrix = mCanvas.getMatrix();
-                drawElement.readingDefs = mReadingDefs;
-                drawElement.type = DrawElement.DrawType.TEXT;
+                DrawElement drawElement = createDrawElement(DrawElement.DrawType.TEXT);
                 drawElement.paint = paint;
                 drawElement.element = text;
                 drawElement.dataName = text.dataName;
-
-                drawElement.updateMatrix(mMatrixStack);
 
                 if (!onCanvasDraw(canvas, drawElement)) {
                     if (text != null) {

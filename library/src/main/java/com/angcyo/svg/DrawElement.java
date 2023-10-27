@@ -19,6 +19,13 @@ import java.util.Stack;
  */
 public class DrawElement {
 
+    @Nullable
+    public String viewBoxStr;
+    @Nullable
+    public String widthStr;
+    @Nullable
+    public String heightStr;
+
     /**
      * svg标签中的width/height对应的值
      */
