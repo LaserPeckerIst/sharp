@@ -2200,15 +2200,17 @@ public abstract class Sharp {
                 pushTransform(atts);
                 Properties props = new Properties(atts, clsStyle);
                 mRect.set(x, y, x + width, y + height);
+
+                DrawElement drawElement = createDrawElement(DrawElement.DrawType.ROUND_RECT);
+                drawElement.element = mRect;
+                drawElement.rx = rx;
+                drawElement.ry = ry;
+                drawElement.dataName = props.getString("data-name");
                 if (doFill(props, mRect)) {
                     mRect = onSvgElement(id, mRect, mRect, mFillPaint);
                     if (mRect != null) {
-                        DrawElement drawElement = createDrawElement(DrawElement.DrawType.ROUND_RECT);
                         drawElement.paint = mFillPaint;
                         drawElement.element = mRect;
-                        drawElement.rx = rx;
-                        drawElement.ry = ry;
-                        drawElement.dataName = props.getString("data-name");
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawRoundRect(mRect, rx, ry, mFillPaint);
                             onSvgElementDrawn(id, mRect, mFillPaint);
@@ -2219,12 +2221,8 @@ public abstract class Sharp {
                 if (doStroke(props, mRect)) {
                     mRect = onSvgElement(id, mRect, mRect, mStrokePaint);
                     if (mRect != null) {
-                        DrawElement drawElement = createDrawElement(DrawElement.DrawType.ROUND_RECT);
                         drawElement.paint = mStrokePaint;
                         drawElement.element = mRect;
-                        drawElement.rx = rx;
-                        drawElement.ry = ry;
-                        drawElement.dataName = props.getString("data-name");
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawRoundRect(mRect, rx, ry, mStrokePaint);
                             onSvgElementDrawn(id, mRect, mStrokePaint);
@@ -2272,13 +2270,14 @@ public abstract class Sharp {
                     pushTransform(atts);
                     Properties props = new Properties(atts, clsStyle);
                     mRect.set(centerX - radiusX, centerY - radiusY, centerX + radiusX, centerY + radiusY);
+
+                    DrawElement drawElement = createDrawElement(DrawElement.DrawType.OVAL);
+                    drawElement.dataName = props.getString("data-name");
                     if (doFill(props, mRect)) {
                         mRect = onSvgElement(id, mRect, mRect, mFillPaint);
                         if (mRect != null) {
-                            DrawElement drawElement = createDrawElement(DrawElement.DrawType.OVAL);
                             drawElement.paint = mFillPaint;
                             drawElement.element = mRect;
-                            drawElement.dataName = props.getString("data-name");
                             if (!onCanvasDraw(mCanvas, drawElement)) {
                                 mCanvas.drawOval(mRect, mFillPaint);
                                 onSvgElementDrawn(id, mRect, mFillPaint);
@@ -2289,10 +2288,8 @@ public abstract class Sharp {
                     if (doStroke(props, mRect)) {
                         mRect = onSvgElement(id, mRect, mRect, mStrokePaint);
                         if (mRect != null) {
-                            DrawElement drawElement = createDrawElement(DrawElement.DrawType.OVAL);
                             drawElement.paint = mStrokePaint;
                             drawElement.element = mRect;
-                            drawElement.dataName = props.getString("data-name");
                             if (!onCanvasDraw(mCanvas, drawElement)) {
                                 mCanvas.drawOval(mRect, mStrokePaint);
                                 onSvgElementDrawn(id, mRect, mStrokePaint);
@@ -2321,15 +2318,16 @@ public abstract class Sharp {
                             p.close();
                         }
                         p.computeBounds(mRect, false);
+
+                        DrawElement drawElement = createDrawElement(DrawElement.DrawType.PATH);
+                        drawElement.pathBounds = mRect;
+                        drawElement.dataName = props.getString("data-name");
+                        drawElement.updatePointsData(points, closePath);
                         if (doFill(props, mRect)) {
                             p = onSvgElement(id, p, mRect, mFillPaint);
                             if (p != null) {
-                                DrawElement drawElement = createDrawElement(DrawElement.DrawType.PATH);
                                 drawElement.paint = mFillPaint;
                                 drawElement.element = p;
-                                drawElement.pathBounds = mRect;
-                                drawElement.dataName = props.getString("data-name");
-                                drawElement.updatePointsData(points, closePath);
                                 if (!onCanvasDraw(mCanvas, drawElement)) {
                                     mCanvas.drawPath(p, mFillPaint);
                                     onSvgElementDrawn(id, p, mFillPaint);
@@ -2340,12 +2338,8 @@ public abstract class Sharp {
                         if (doStroke(props, mRect)) {
                             p = onSvgElement(id, p, mRect, mStrokePaint);
                             if (p != null) {
-                                DrawElement drawElement = createDrawElement(DrawElement.DrawType.PATH);
                                 drawElement.paint = mStrokePaint;
                                 drawElement.element = p;
-                                drawElement.pathBounds = mRect;
-                                drawElement.dataName = props.getString("data-name");
-                                drawElement.updatePointsData(points, closePath);
                                 if (!onCanvasDraw(mCanvas, drawElement)) {
                                     mCanvas.drawPath(p, mStrokePaint);
                                     onSvgElementDrawn(id, p, mStrokePaint);
@@ -2378,15 +2372,16 @@ public abstract class Sharp {
                 pushTransform(atts);
                 Properties props = new Properties(atts, clsStyle);
                 p.computeBounds(mRect, false);
+
+                DrawElement drawElement = createDrawElement(DrawElement.DrawType.PATH);
+                drawElement.data = d;
+                drawElement.pathBounds = mRect;
+                drawElement.dataName = props.getString("data-name");
                 if (doFill(props, mRect)) {
                     p = onSvgElement(id, p, mRect, mFillPaint);
                     if (p != null) {
-                        DrawElement drawElement = createDrawElement(DrawElement.DrawType.PATH);
                         drawElement.paint = mFillPaint;
                         drawElement.element = p;
-                        drawElement.data = d;
-                        drawElement.pathBounds = mRect;
-                        drawElement.dataName = props.getString("data-name");
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawPath(p, mFillPaint);
                             onSvgElementDrawn(id, p, mFillPaint);
@@ -2397,12 +2392,8 @@ public abstract class Sharp {
                 if (doStroke(props, mRect)) {
                     p = onSvgElement(id, p, mRect, mStrokePaint);
                     if (p != null) {
-                        DrawElement drawElement = createDrawElement(DrawElement.DrawType.PATH);
                         drawElement.paint = mStrokePaint;
                         drawElement.element = p;
-                        drawElement.data = d;
-                        drawElement.pathBounds = mRect;
-                        drawElement.dataName = props.getString("data-name");
                         if (!onCanvasDraw(mCanvas, drawElement)) {
                             mCanvas.drawPath(p, mStrokePaint);
                             onSvgElementDrawn(id, p, mStrokePaint);
