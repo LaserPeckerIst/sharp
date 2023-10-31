@@ -8,6 +8,8 @@ import android.graphics.RectF;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.pixplicity.sharp.Sharp;
+
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -89,6 +91,12 @@ public class DrawElement {
     @NonNull
     public Matrix canvasMatrix;
 
+    /**
+     * 分组信息
+     */
+    @Nullable
+    public Sharp.SvgHandler.SvgGroup svgGroup;
+
     public enum DrawType {
         //drawRoundRect
         ROUND_RECT,
@@ -113,9 +121,12 @@ public class DrawElement {
         return path;
     }
 
-    public void updateMatrix(Stack<Matrix> stack) {
-        if (!stack.isEmpty()) {
-            matrix = stack.peek();
+    public void updateStack(Stack<Matrix> matrixStack, Stack<Sharp.SvgHandler.SvgGroup> groupStack) {
+        if (!matrixStack.isEmpty()) {
+            matrix = matrixStack.peek();
+        }
+        if (!groupStack.isEmpty()) {
+            svgGroup = groupStack.peek();
         }
     }
 

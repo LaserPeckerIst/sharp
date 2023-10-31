@@ -2017,7 +2017,7 @@ public abstract class Sharp {
             drawElement.heightStr = heightStr;
             drawElement.canvasMatrix = mCanvas.getMatrix();
             drawElement.readingDefs = mReadingDefs;
-            drawElement.updateMatrix(mMatrixStack);
+            drawElement.updateStack(mMatrixStack, mGroupStack);
             return drawElement;
         }
 
@@ -2560,9 +2560,11 @@ public abstract class Sharp {
         //</editor-fold desc="xml文档处理">
 
         public class SvgGroup {
-            private final String id;
 
-            public SvgGroup(String id) {
+            @Nullable
+            public final String id;
+
+            public SvgGroup(@Nullable String id) {
                 this.id = id;
             }
         }
