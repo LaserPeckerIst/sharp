@@ -782,8 +782,11 @@ public abstract class Sharp {
                     float x = ph.nextFloat();
                     float y = ph.nextFloat();
                     if (Character.isLowerCase(cmd)) {
-                        subPathStartX += x;
-                        subPathStartY += y;
+                        //2023-11-6 修复
+                        //subPathStartX += x;
+                        //subPathStartY += y;
+                        subPathStartX = lastX + x;
+                        subPathStartY = lastY + y;
                         p.rMoveTo(x, y);
                         lastX += x;
                         lastY += y;
@@ -851,10 +854,10 @@ public abstract class Sharp {
                     if (Character.isLowerCase(cmd)) {
                         // Relative coordinates
                         x1 += lastX;
-                        x2 += lastX;
-                        x += lastX;
                         y1 += lastY;
+                        x2 += lastX;
                         y2 += lastY;
+                        x += lastX;
                         y += lastY;
                     }
                     p.cubicTo(x1, y1, x2, y2, x, y);
