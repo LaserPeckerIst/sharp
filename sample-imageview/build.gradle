@@ -20,12 +20,13 @@ android {
         sourceCompatibility 1.8
         targetCompatibility 1.8
     }
+    namespace 'com.pixplicity.sharp.imageviewdemo'
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.4.1'
 
-    implementation 'com.jsibbold:zoomage:1.3.0'
+    implementation 'com.jsibbold:zoomage:1.3.1'
     implementation project(':library')
 }
