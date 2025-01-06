@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="图层_1" xmlns:xodm="http://www.corel.com/coreldraw/odm/2003" xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 842.5 595.8"
+	style="enable-background:new 0 0 842.5 595.8;" xml:space="preserve">
+	<style type="text/css">
+		.st0 {
+			fill: none;
+			stroke: #231F20;
+			stroke-width: 0.7492;
+			stroke-miterlimit: 10;
+		}
+
+		.st1 {
+			fill: none;
+			stroke: #231815;
+			stroke-width: 0.7087;
+			stroke-miterlimit: 10;
+		}
+
+		.st2 {
+			fill: none;
+			stroke: #231815;
+			stroke-width: 0.71;
+			stroke-miterlimit: 10;
+		}
+
+		.st3 {
+			fill: none;
+			stroke: #231F20;
+			stroke-width: 0.7087;
+			stroke-miterlimit: 10;
+		}
+	</style>
+
+	<g>
+		<line class="st2" x1="807.1" y1="405.3" x2="807.1" y2="379.2" />
+		<polygon class="st2" points="835.5,399.8 815.9,397 807.1,379.2 798.4,397 778.8,399.8 793,413.6 789.6,433.1 803.3,425.9
+		803.3,499.8 811,499.8 811,425.9 824.7,433.1 821.3,413.6 	" />
+		<line class="st2" x1="803.3" y1="425.9" x2="803.3" y2="499.8" />
+		<line class="st2" x1="807" y1="439.7" x2="807" y2="499.9" />
+	</g>
+
+</svg>

@@ -67,7 +67,8 @@ public class SvgDemoActivity extends AppCompatActivity {
     private boolean mRenderBitmap = false;
 
     //private int testRawResId = R.raw.svg_size_test;
-    private int testRawResId = R.raw.svg_line_test;
+    //private int testRawResId = R.raw.svg_line_test4;
+    private int testRawResId = R.raw.group_transform;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,8 +103,8 @@ public class SvgDemoActivity extends AppCompatActivity {
             }
         });
 
-        reloadSvg(false);
-//        testLoadSvgPath();
+//        reloadSvg(false);
+        testLoadSvgPath();
 
         /*
         //1.
@@ -139,9 +140,11 @@ public class SvgDemoActivity extends AppCompatActivity {
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(1);
-        paint.setColor(Color.BLACK);
+        paint.setColor(Color.RED);
         Drawable drawable = Svg.loadSvgPathDrawable(svgText, -1, null, paint, 0, 0);
-        Log.w("angcyo", "width:" + drawable.getMinimumWidth() + " height:" + drawable.getMinimumHeight());
+        if (drawable != null) {
+            Log.w("angcyo", "width:" + drawable.getMinimumWidth() + " height:" + drawable.getMinimumHeight());
+        }
         mImageView.setImageDrawable(drawable);
     }
 
