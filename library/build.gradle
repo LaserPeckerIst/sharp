@@ -1,11 +1,22 @@
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
+/// 构建源码jar包
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    archiveClassifier.set('sources')
 }
+task javadoc(type: Javadoc) {
+    //增加编码，这行很重要，如果是windows系统，同时如果在代码中有中文的话，不加这行，上传会报错
+    options.encoding = "utf-8"
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    from javadoc.destinationDir
+    archiveClassifier.set('javadoc')
+}
+
 android {
     compileSdk 33
 
@@ -13,7 +24,7 @@ android {
         minSdkVersion 11
         targetSdk 33
     }
-    
+
     buildTypes {
         release {
             minifyEnabled false
@@ -36,18 +47,50 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.3.0'
 }
 
-publishing {
-    publications {
-        release(MavenPublication) {
-//            groupId = 'com.angcyo'
-//            artifactId = 'sharp'
-//            version = '1.1.3'
+// 这个是把源码打入aar包中的任务
+task sourceJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.srcDirs
+}
 
-//            afterEvaluate {
-//                from components.release
-//            }
+afterEvaluate {
+    publishing {
+        publications {
+            // 这里的debug名字是自己起的
+            release(MavenPublication) {
+                groupId = 'com.angcyo'
+                artifactId = 'sharp'
+                version = "1.1.30"
+                // 这里除了有debug 还有release
+                if (!components.isEmpty()) {
+                    from components.release
+                }
+                // 运行任务，把源码打进去
+                artifact sourceJar
+            }
         }
+        // 添加仓库地址
+        /*repositories {
+            // 本地仓库
+            mavenLocal()
+        }*/
     }
 }
 
+/*publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = 'com.angcyo'
+            artifactId = 'sharp'
+            version = '1.1.3'
+
+            afterEvaluate {
+                from components.release
+            }
+        }
+    }
+}*/
+
 //apply from: "${rootProject.projectDir}/mavencentral_publish.gradle"
+
+
