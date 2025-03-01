@@ -1186,7 +1186,7 @@ public abstract class Sharp {
             for (String s : styles) {
                 String[] style = s.split(":");
                 if (style.length == 2) {
-                    styleMap.put(style[0], style[1]);
+                    styleMap.put(style[0].trim(), style[1].trim());
                 }
             }
         }
