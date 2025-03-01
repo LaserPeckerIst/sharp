@@ -7,11 +7,11 @@ buildscript {
     }
 }
 android {
-    compileSdkVersion 31
+    compileSdk 33
 
     defaultConfig {
         minSdkVersion 11
-        targetSdkVersion 31
+        targetSdk 33
     }
     
     buildTypes {
