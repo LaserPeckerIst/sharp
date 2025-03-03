@@ -1,6 +1,8 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 apply plugin: 'maven-publish'
 
+/*
 /// 构建源码jar包
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
@@ -16,6 +18,7 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
     archiveClassifier.set('javadoc')
 }
+*/
 
 android {
     compileSdk 33
@@ -37,20 +40,14 @@ android {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
-    /*kotlinOptions {
+    kotlinOptions {
         jvmTarget = '11'
-    }*/
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.annotation:annotation:1.3.0'
-}
-
-// 这个是把源码打入aar包中的任务
-task sourceJar(type: Jar) {
-    archiveClassifier.set('sources')
-    from android.sourceSets.main.java.srcDirs
 }
 
 afterEvaluate {
@@ -65,18 +62,19 @@ afterEvaluate {
                 artifactId = 'sharp'
                 version = '1.1.3.39'
                 // 这里除了有debug 还有release
-                if (!components.isEmpty()) {
-                    from components.release
-                }
-                // 运行任务，把源码打进去
-                artifact sourceJar
+                from components.release
             }
         }
         // 添加仓库地址
-        /*repositories {
+        repositories {
             // 本地仓库
-            mavenLocal()
-        }*/
+            //mavenLocal()
+            //配置输出目录
+            /*maven {
+                // change to point to your repo, e.g. http://my.org/repo
+                url = layout.buildDirectory.dir('repo')
+            }*/
+        }
     }
 }
 

@@ -10,6 +10,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.7.3'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.22"
 
         // Code checks
         //classpath 'com.noveogroup.android:check:1.2.2'
